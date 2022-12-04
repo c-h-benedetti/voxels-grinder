@@ -1,0 +1,39 @@
+\hypertarget{classImageIO}{}\doxysection{Image\+IO$<$ T $>$ Class Template Reference}
+\label{classImageIO}\index{ImageIO$<$ T $>$@{ImageIO$<$ T $>$}}
+
+
+Inheritance diagram for Image\+IO$<$ T $>$\+:
+% FIG 0
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classImageIO_a2ec0365669cab29bdee0562d794fbe80}\label{classImageIO_a2ec0365669cab29bdee0562d794fbe80}} 
+{\footnotesize template$<$typename T $>$ }\\std\+::filesystem\+::path {\bfseries make\+Output\+Path} (const \mbox{\hyperlink{classImage}{Image}}$<$ T $>$ \&i)
+\item 
+\mbox{\Hypertarget{classImageIO_a94bbbc76ea139df5cf16d817f58b3678}\label{classImageIO_a94bbbc76ea139df5cf16d817f58b3678}} 
+{\footnotesize template$<$typename T $>$ }\\void {\bfseries export\+Image} (const \mbox{\hyperlink{classImage}{Image}}$<$ T $>$ \&i)
+\item 
+\mbox{\Hypertarget{classImageIO_a6559f37047c75ee8b4ab4fb55db2dee3}\label{classImageIO_a6559f37047c75ee8b4ab4fb55db2dee3}} 
+const std\+::filesystem\+::path \& {\bfseries get\+Output\+Folder\+Path} ()
+\item 
+\mbox{\Hypertarget{classImageIO_a3ae9ce01b98aef8305589e1773bcd6f7}\label{classImageIO_a3ae9ce01b98aef8305589e1773bcd6f7}} 
+virtual std\+::filesystem\+::path {\bfseries get\+Extension} ()=0
+\item 
+\mbox{\Hypertarget{classImageIO_a8a540deb3be775b840c3343183fba1d5}\label{classImageIO_a8a540deb3be775b840c3343183fba1d5}} 
+virtual bool {\bfseries handles\+Type} ()=0
+\item 
+\mbox{\Hypertarget{classImageIO_a43b5e2cc3cb68710b5eb44151dd6dec4}\label{classImageIO_a43b5e2cc3cb68710b5eb44151dd6dec4}} 
+virtual int {\bfseries export\+To\+File} (const \mbox{\hyperlink{classImage}{Image}}$<$ T $>$ \&img)=0
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classImageIO_a5164a7852303a4dfea8e9af952910220}\label{classImageIO_a5164a7852303a4dfea8e9af952910220}} 
+std\+::filesystem\+::path {\bfseries output\+Folder} = std\+::filesystem\+::temp\+\_\+directory\+\_\+path()
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Image\+IO.\+hpp\item 
+main.\+cpp\end{DoxyCompactItemize}
