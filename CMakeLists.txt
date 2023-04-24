@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-project(Carthage LANGUAGES CXX)
+project(VoxelsGrinder LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory("googletest")
@@ -40,6 +40,13 @@ set(MEDIAS_SRC
 	"medias/Media.cpp"
 	"medias/MediaManager.hpp"
 	"medias/MediaManager.cpp"
+	"medias/DataUtils.hpp"
+	"medias/DataUtils.cpp"
+)
+
+set(UTILS_SRC
+	"utils/Color.hpp"
+	"utils/Color.cpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =
@@ -63,6 +70,28 @@ target_link_libraries(stackSegmentTest
 	PRIVATE gtest_main
 )
 
+# = = = = = = = = = = = = = = = = UTILS = = = = = = = = = = = = = = = =
+
+add_library(UTILS_LIB
+	${UTILS_SRC}
+)
+
+target_include_directories(UTILS_LIB
+	PUBLIC "stack-segments"
+	PUBLIC "utils"
+	PUBLIC "googletest/googletest/include"
+	PUBLIC "googletest/googlemock/include"
+)
+
+add_executable(utilsTest
+	utils/main.cpp
+)
+
+target_link_libraries(utilsTest
+	PUBLIC UTILS_LIB
+	PRIVATE gtest_main
+)
+
 # = = = = = = = = = = = = = = = = MEDIAS = = = = = = = = = = = = = = = =
 
 add_library(MEDIAS_LIB
@@ -72,6 +101,7 @@ add_library(MEDIAS_LIB
 target_include_directories(MEDIAS_LIB
 	PUBLIC "stack-segments"
 	PUBLIC "medias"
+	PUBLIC "utils"
 	PUBLIC "googletest/googletest/include"
 	PUBLIC "googletest/googlemock/include"
 )
@@ -83,6 +113,7 @@ add_executable(mediasTest
 target_link_libraries(mediasTest
 	MEDIAS_LIB
 	STACK_SEGMENT_LIB
+	UTILS_LIB
 	gtest_main
 )
 

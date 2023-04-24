@@ -17,19 +17,19 @@ std::unique_ptr<MediaManager> MediaManager::mediaManagerInstance(new MediaManage
  * @param nSlices Number of slices.
  * @param nFrames Number of frames.
  */
-Media& MediaManager::createMedia(const std::filesystem::path& title, size_t width, size_t height, bit_depth depth, size_t nChannels, size_t nSlices, size_t nFrames) {
+Media& MediaManager::createMedia(const Title& title, size_t width, size_t height, bit_depth depth, size_t nChannels, size_t nSlices, size_t nFrames) {
+    Dimensions dims(width, height, depth, nChannels, nSlices, nFrames);
+    return this->createMedia(title, dims);
+}
+
+Media& MediaManager::createMedia(const Title& title, const Dimensions& dims) {
     ID id = ID::makeID();
     media_ptr med(
         new Media(
             id,
             *this,
             title,
-            width,
-            height,
-            depth,
-            nChannels,
-            nSlices,
-            nFrames
+            dims
         ),
         [](Media* m) {
             delete m;
@@ -42,18 +42,14 @@ Media& MediaManager::createMedia(const std::filesystem::path& title, size_t widt
     return *(this->medias[id]);
 }
 
-Media& MediaManager::createMedia(const std::filesystem::path& title, const Dimensions& dims) {
-    return this->createMedia(title, dims.width, dims.height, dims.depth, dims.nChannels, dims.nSlices, dims.nFrames);
-}
-
 Media* MediaManager::getMedia(const ID& id) {
     auto it = this->medias.find(id);
     if (it != this->medias.end()) { return it->second.get(); }
     return nullptr;
 }
 
-Media* MediaManager::getMedia(const std::filesystem::path& title) {
-    for (auto& it : this->medias) {
+Media* MediaManager::getMedia(const Title& title) {
+    for (const auto& it : this->medias) {
         if (it.second->getTitle() == title) { return it.second.get(); }
     }
     return nullptr;
@@ -78,4 +74,11 @@ void MediaManager::destroyRessources() {
 
 MediaManager::~MediaManager() {
     this->destroyRessources();
+}
+
+bool MediaManager::titleExists(const Title& t) const {
+    for (const auto& it : this->medias) {
+        if (it.second->getTitle() == t) { return true; }
+    }
+    return false;
 }

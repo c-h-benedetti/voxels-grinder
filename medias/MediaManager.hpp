@@ -26,15 +26,15 @@ private:
 
 public:
 
-    Media& createMedia(const std::filesystem::path& title, size_t width, size_t height, bit_depth depth, size_t nChannels=1, size_t nSlices=1, size_t nFrames=1);
-    Media& createMedia(const std::filesystem::path& title, const Dimensions& dims);
+    Media& createMedia(const Title& title, size_t width, size_t height, bit_depth depth, size_t nChannels=1, size_t nSlices=1, size_t nFrames=1);
+    Media& createMedia(const Title& title, const Dimensions& dims);
     Media* getMedia(const ID& id);
-    Media* getMedia(const std::filesystem::path& title);
-
+    Media* getMedia(const Title& title);
     int close(const ID& id);
-    inline size_t nOpenedMedias() const { return this->medias.size(); }
-
     void destroyRessources();
+    bool titleExists(const Title& t) const;
+
+    inline size_t nOpenedMedias() const { return this->medias.size(); }
 
     static inline MediaManager& getInstance() { return *MediaManager::mediaManagerInstance; }
 };

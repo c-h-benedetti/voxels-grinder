@@ -6,19 +6,21 @@
 #include "MediaData.hpp"
 #include "ID.hpp"
 
+using Title = std::filesystem::path;
 class MediaManager;
 
 class Media {
 
     ID id;
-    MediaData processor = nullptr;
-    std::filesystem::path title;
+    MediaData data = nullptr;
+    Title title;
     MediaManager& manager;
 
 private:
 
     Media() = delete;
-    Media(const ID& imgId, MediaManager& mm, const std::filesystem::path& title, size_t width, size_t height, bit_depth depth, size_t nChannels, size_t nSlices, size_t nFrames);
+    Media(const ID& imgId, MediaManager& mm, const Title& title, const Dimensions& dims);
+    Media(const ID& imgId, MediaManager& mm, const Title& title, size_t width, size_t height, bit_depth depth, size_t nChannels, size_t nSlices, size_t nFrames);
 
     ~Media();
 
@@ -27,9 +29,9 @@ private:
 public:
 
     inline ID getID() const { return this->id; }
-    inline std::filesystem::path getTitle() const { return this->title; }
-    inline MediaData getData() { return this->processor; }
-    inline void setData(MediaData m) { this->processor = m; }
+    inline Title getTitle() const { return this->title; }
+    inline MediaData getData() { return this->data; }
+    inline void setData(MediaData m) { this->data = m; }
 
     void close();
 

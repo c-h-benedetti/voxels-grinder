@@ -14,6 +14,4 @@ bool MediaDataInstance::resize(size_t c, size_t s, size_t f) {
     return true;
 }
 
-MediaDataInstance::MediaDataInstance(const Dimensions& dims) {
-
-}
+MediaDataInstance::MediaDataInstance(const Dimensions& dims): dimensions(dims) {}
