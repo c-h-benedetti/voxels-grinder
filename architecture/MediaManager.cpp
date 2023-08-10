@@ -3,266 +3,362 @@
 #include <vector>
 #include <memory>
 #include <filesystem>
+#include <map>
 #include <utility>
+#include <set>
+#include <limits>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
 
 namespace fs = std::filesystem;
+
+struct vec2 { float data[2]; };
+struct vec3 { float data[3]; };
+struct vec4 { float data[4]; };
+
+// Il faut un moyen de stocker 
+struct Bucket {
+    vec3 lfb; // lower left backward
+    vec3 urf; // upper right front
+    size_t c; // channel
+    size_t f; // frame
+};
+
+namespace Calibration {
+    enum class length_unit {
+        km,
+        hm,
+        dam,
+        m,
+        dm,
+        cm,
+        mm,
+        um,
+        nm,
+        pm,
+        fm
+    };
+
+    enum class time_unit {
+        y,
+        d,
+        h,
+        m,
+        s,
+        ms,
+        us
+    };
+
+    class Calibration {
+        // 1 voxel corresponds to...
+        std::pair<float, length_unit> x;
+        std::pair<float, length_unit> y;
+        std::pair<float, length_unit> z;
+        std::pair<float, time_unit>   t;
+
+        vec4 asVector() const {
+            return {x.first, y.first, z.first, t.first};
+        }
+    };
+
+    vec4 pixelsToCalibration(const vec4& v1) {
+        // Values in `v` are stored in number of pixels.
+        return v1;
+    }
+
+};
 
 class Data {
 public:
     virtual ~Data() {}
+    virtual void close() {}
 };
 
-class Mesh : public Data {
-public:
-    virtual ~Mesh() {}
-};
+//##################################################
 
-enum data_type {
-    none,
-    ui8,
-    ui16,
-    f32,
-    rgb,
-    labeling,
-    mask
-};
+struct segment { size_t data[2]; };
+struct triangle { size_t data[3]; };
 
-// We will stick to one channel and one frame at a time.
-struct BoundingBox {
-    size_t ulb[3] = {0}; // upper left back
-    size_t lrf[3] = {0}; // lower right front
-};
-
-class Image : public Data {
+class Vertices : public Data {
 protected:
+    std::vector<vec3> vertices;
+};
 
-    const data_type dtype;
+class Polyline : public Vertices {
+protected:
+    std::vector<segment> segments;
+};
+
+class Polygon : public Polyline {
+    // The only difference is that the last segment and the first are considered closed.
+};
+
+class Mesh : public Vertices {
+    std::vector<triangle> triangles;
+};
+
+//##################################################
+
+struct Dimensions {
     size_t height;
     size_t width;
     size_t nSlices;
     size_t nChannels;
     size_t nFrames;
+};
 
-protected:
-    
-    Image(): dtype(data_type::none) {}
-    Image(data_type dt): dtype(dt) {}    
-    Image(data_type dt, size_t h, size_t w, size_t s, size_t c, size_t f): dtype(dt), height(h), width(w), nSlices(s), nChannels(c), nFrames(f) {}
+enum ImageType {
+    none,
+    u8,
+    u16,
+    sfloat,
+    rgb,
+    labels,
+    mask
+};
+
+template <typename T>
+class Image : public Data {
+
+    Dimensions dimensions;
 
 public:
-    
+
+    inline Dimensions getDimensions() const { return dimensions; }
+    static ImageType getType() { return none; }
+
     virtual ~Image() {}
 };
 
-class Image8 : public Image {
+class ImageU8 : public Image<uint8_t> {
 public:
-    Image8(): Image(data_type::ui8) {}
-    Image8(size_t h, size_t w, size_t s, size_t c, size_t f): Image(data_type::ui8, h, w, s, c, f) {}
+    static ImageType getType() { return ImageType::u8; }
 };
 
-class Mask : public Image8 {
+class ImageU16 : public Image<uint16_t> {
 public:
-    Mask(): Image8() {}
-    Mask(size_t h, size_t w, size_t s, size_t c, size_t f): Image8(h, w, s, c, f) {}
+    static ImageType getType() { return ImageType::u16; }
 };
 
-class Image16 : public Image {
+class ImageFloat : public Image<float> {
 public:
-    Image16(): Image(data_type::ui16) {}
+    static ImageType getType() { return ImageType::sfloat; }
 };
 
-class Image32 : public Image {
+class ImageRGB : public Image<uint8_t> {
 public:
-    Image32(): Image(data_type::f32) {}
+    static ImageType getType() { return ImageType::u8; }
 };
 
-class ImageRGB : public Image {
+class ImageLabeling : public Image<uint64_t> {
 public:
-    ImageRGB(): Image(data_type::rgb) {}
+    static ImageType getType() { return ImageType::labels; }
 };
 
-class Labeling : public Image {
+class ImageMask : public Image<bool> {
 public:
-    Labeling(): Image(data_type::labeling) {}
+    static ImageType getType() { return ImageType::mask; }
 };
 
-class Media {
-    std::u32string str32 = U"é 猫 🐱";
-    std::unique_ptr<Data> data;
-public:
-    bool rename(const std::u32string& name) { return false; }
-    friend class MediaManager;
+//##################################################
+
+ImageU8* duplicate(ImageU8* img) { return nullptr; }
+ImageU16* duplicate(ImageU16* img) { return nullptr; }
+ImageFloat* duplicate(ImageFloat* img) { return nullptr; }
+ImageRGB* duplicate(ImageRGB* img) { return nullptr; }
+ImageLabeling* duplicate(ImageLabeling* img) { return nullptr; }
+ImageMask* duplicate(ImageMask* img) { return nullptr; }
+
+//##################################################
+
+// Undefined for masks and rgb.
+void threshold(ImageU8* img, uint8_t lower=0, uint8_t upper=std::numeric_limits<uint8_t>::max()) {}
+void threshold(ImageU16* img, uint16_t lower=0, int16_t upper=std::numeric_limits<uint16_t>::max()) {}
+void threshold(ImageFloat* img, float lower=0.0f, float upper=1.0f) {}
+void threshold(ImageLabeling* img, uint64_t lower=0, int64_t upper=std::numeric_limits<uint64_t>::max()) {}
+
+//##################################################
+
+enum threshold_type {
+    INTERMODE,
+    OTSU,
+    YEN,
+    MEDIAN,
+    TRIANGLE
 };
 
+uint8_t auto_threshold(const ImageU8* img, threshold_type tt) { return 0; }
+uint16_t auto_threshold(const ImageU16* img, threshold_type tt) { return 0; }
+float auto_threshold(const ImageFloat* img, threshold_type tt) { return 0.0f; }
+uint64_t auto_threshold(const ImageLabeling* img, threshold_type tt) { return 0; }
 
-class io_worker {
+//##################################################
+
+std::vector<ImageU8*> split_channels(const ImageU8* img) { return {nullptr}; }
+std::vector<ImageU16*> split_channels(const ImageU16* img) { return {nullptr, nullptr}; }
+std::vector<ImageFloat*> split_channels(const ImageFloat* img) { return {nullptr}; }
+std::vector<ImageRGB*> split_channels(const ImageRGB* img) { return {nullptr, nullptr, nullptr}; }
+std::vector<ImageLabeling*> split_channels(const ImageLabeling* img) { return {nullptr, nullptr}; }
+std::vector<ImageMask*> split_channels(const ImageMask* img) { return {nullptr}; }
+
+//##################################################
+
+ImageU8* enhance_contrast(ImageU8* img, float skip) { return nullptr; }
+ImageU16* enhance_contrast(ImageU16* img, float skip) { return nullptr; }
+ImageFloat* enhance_contrast(ImageFloat* img, float skip) { return nullptr; }
+ImageRGB* enhance_contrast(ImageRGB* img, float skip) { return nullptr; }
+
+//##################################################
+
+template <typename I>
+class RandomForestSegmentation {
+    // Si on veut update les labels à chaque essaie, il va falloir changer la façon dont-on fonctionne.
+    // On veut garder l'aspect "programmation fonctionnelle", mais on voudrait que certaines fonctions puissent modifier le canvas qu'elles reçoivent.
+    // Les fonctions devraient peut-être modifier le canvas quand c'est possible, et ça sera aux actions de dupliquer ou non l'image.
+    // Avec les pointeurs, il est facile de garder le résultat.
+    std::vector<const I*> intensity_images;
+    std::vector<ImageLabeling*> ground_truths;
+
 public:
-    virtual ~io_worker() {}
-    virtual Data* get_data(const fs::path& p) = 0;
+
+    bool load_weights(const fs::path& p) { return true; }
+    void reset_training_set() {}
+    bool add_to_training_set(ImageLabeling* ground_truth, I* image) { return true; }
+    void train() {}
+    ImageLabeling* predict(I* image) const { return nullptr; }
 };
 
-class tiff_io : public io_worker {};
-class png_io : public io_worker {};
-class obj_io : public io_worker {};
+//##################################################
+
+class type_io {};
 
 class DataIO {
-
-    std::map<std::u32string, io_worker*> extension_to_worker;
-    static std::unique_ptr<DataIO> instance;
+    
+    std::map<const std::u32string, std::unique_ptr<type_io>> type_managers;
+    static std::unique_ptr<DataIO> data_io;
 
 public:
 
-    Data* open(const fs::path& p) { return nullptr; }
+    template <typename T>
+    T* openFromDisk(const fs::path& p) { return nullptr; /*return dynamic_cast<T*>(nullptr);*/ }
 
-    bool saveAs(Data* d, const fs::path& p) { return true; }
+    template <typename T>
+    T* openFromNetwork(const std::u32string& url) { return nullptr; /*return dynamic_cast<T*>(nullptr);*/ }
+    
+    bool saveAs(Data*, const fs::path& p) { return true; }
 
-    static inline DataIO* getInstance() {
-        if (DataIO::instance == nullptr) {
-            DataIO::instance = std::unique_ptr<DataIO>(new DataIO);
-        }
-        return DataIO::instance.get();
+    static DataIO& instance() {
+        if (data_io == nullptr) { data_io = std::unique_ptr<DataIO>(new DataIO); }
+        return *(data_io.get());
     }
 };
 
-std::unique_ptr<DataIO> DataIO::instance = nullptr;
+std::unique_ptr<DataIO> DataIO::data_io = std::unique_ptr<DataIO>(nullptr);
 
-class MediaManager {
-    std::vector<Media*> media_instances;
-    std::map<std::u32string, size_t> media_indices;
+//##################################################
 
-public:
-
-    Media* getMedia(const std::u32string& name) { return nullptr; }
-    void registerMedia(const std::u32string& name, Data* data) {}
-};
-
-
-struct AutoThreshold {
-    enum algorithm {
-        otsu,
-        li,
-        triangle,
-        yen,
-        intermode,
-        median
+namespace MasksMorphology {
+    enum class shape {
+        circle_sphere,
+        rectangle_box
     };
 
-    template <typename I, typename T>
-    static T run(I img, algorithm a=algorithm::intermode); // { return 0; }
-};
-
-template <>
-uint8_t AutoThreshold::run<Image8*, uint8_t>(Image8* img, algorithm a)     { return 1; }
-
-template <>
-uint16_t AutoThreshold::run<Image16*, uint16_t>(Image16* img, algorithm a) { return 2; }
-
-template <>
-float AutoThreshold::run<Image32*, float>(Image32* img, algorithm a)       { return 3.1415629; }
-
-template <>
-uint8_t AutoThreshold::run<ImageRGB*, uint8_t>(ImageRGB* img, algorithm a) { return 42; }
-
-//********************************************************************
-
-struct Threshold {
-    template <typename I, typename T>
-    static Image8* run(I img, T val); // { return nullptr ; }
-};
-
-template <>
-Image8* Threshold::run<Image8*, uint8_t>(Image8* img, uint8_t val)     { return nullptr; }
-
-template <>
-Image8* Threshold::run<Image16*, uint16_t>(Image16* img, uint16_t val) { return nullptr; }
-
-template <>
-Image8* Threshold::run<Image32*, float>(Image32* img, float val)       { return nullptr; }
-
-template <>
-Image8* Threshold::run<ImageRGB*, uint8_t>(ImageRGB* img, uint8_t val) { return nullptr; }
-
-
-struct SplitChannels {
-    template <typename I>
-    static std::vector<I> run(I img); // { return nullptr ; }
-};
-
-template <>
-std::vector<Image8*> SplitChannels::run<Image8*>(Image8* img)      { return {nullptr}; }
-
-template <>
-std::vector<Image16*> SplitChannels::run<Image16*>(Image16* img)  { return {nullptr, nullptr}; }
-
-template <>
-std::vector<Image32*> SplitChannels::run<Image32*>(Image32* img)      { return {nullptr, nullptr, nullptr, nullptr}; }
-
-template <>
-std::vector<ImageRGB*> SplitChannels::run<ImageRGB*>(ImageRGB* img) { return {nullptr, nullptr, nullptr}; }
-
-struct RandomForestWeights {};
-
-namespace PixelClassifier {
-
-    struct classifier_data { // needs settings (such as filters, sizes for each filter, ...)
-        std::vector<std::u32string> classes; // Position corresponds to label.
-        RandomForestWeights* rfw = nullptr; // Weights of random forest.
+    struct StructuringElement {
+        StructuringElement(size_t size_x, size_t size_y, size_t size_z, shape s) {}
     };
 
-    struct Training {
-        template <typename I>
-        void run(I img, Labeling* labeling, classifier_data* cd);
-    };
-    
-    struct Predict {
-        template <typename I>
-        Labeling run(I img, classifier_data* cd);
-    };
+    void erode(ImageMask* img) {}
+    void dilate(ImageMask* img) {}
+    void open(ImageMask* img) {}
+    void close(ImageMask* img) {}
+    void chamfer_distance(ImageMask* img) {}
 };
-
-
-namespace MaskMorphology {
-    Image8* dilate(Image8* img); // A changer en 'Mask'
-    Image8* erode(Image8* img);
-    Image8* open(Image8* img);
-    Image8* close(Image8* img);
-    Image8* chamferDistance(Image8* img);
-};
-
 
 namespace LabelsMorphology {
+    void select_labels(ImageLabeling* img, const std::set<uint64_t>& labels) {
+        /// Modifies the input image by setting values not in `labels` to 0.
+    }
 
+    ImageMask* mask_from_labels(ImageLabeling* img, const std::set<uint64_t>& labels) { 
+        /// Returns a mask in which values that were in `labels` were set to true. false otherwise.
+        return nullptr;
+    }
+
+    ImageLabeling* connected_components_labeling(ImageMask* img, uint8_t connectivity) { return nullptr; }
 };
 
-
-class Worker {};
+//##################################################
 
 class ThreadPool {
 
-    std::vector<Worker*> workers;
-    std::vector<bool>    state;
+    std::vector<std::thread> workers;
+    std::queue<Bucket*> tasks;
+    std::mutex queueMutex;
+    std::condition_variable condition;
+    bool stop = false;
 
 public:
 
+    ThreadPool(size_t threads) {
+        for(size_t i = 0; i < threads; ++i) {
+            workers.emplace_back([this] {
+                while(true) {
+                    Bucket* task;
+                    {
+                        std::unique_lock<std::mutex> lock(this->queueMutex);
+                        this->condition.wait(lock, [this] { return this->stop || !this->tasks.empty(); });
+                        if(this->stop && this->tasks.empty()) return;
+                        task = tasks.front();
+                        tasks.pop();
+                    }
+                    // Exécutez l'opération sur le bucket
+                    // ...
+                }
+            });
+        }
+    }
+
+    void enqueueTask(Bucket* task) {
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            if(stop) throw std::runtime_error("enqueue on stopped ThreadPool");
+            tasks.push(task);
+        }
+        condition.notify_one();
+    }
+
+    ~ThreadPool() {
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            stop = true;
+        }
+        condition.notify_all();
+        for(std::thread &worker: workers) {
+            worker.join();
+        }
+    }
 };
 
+//##################################################
 
-int main() {
-    // ===== Experiment: Seg'n'track (Thomas Sabaté) =====
+void thomas_sabate_seg_n_track() {
+    ImageU16* imIn = DataIO::instance().openFromDisk<ImageU16>("/some/path/to/image.tif");
+    std::vector<ImageU16*> channels = split_channels(imIn);
+    ImageU16* splitGFP = channels[0];
+    ImageU16* rad21    = channels[1];
+    imIn->close();
 
-    // 1. Open and load image from file + split channels.
-    Image16* img = dynamic_cast<Image16*>(DataIO::getInstance()->open("/some/path/to/image.tif"));
-    std::vector<Image16*> channels = SplitChannels::run(img);
-    delete img;
-    Image16* red   = channels[0];
-    Image16* green = channels[1];
+    RandomForestSegmentation<ImageU16> rfs;
+    if (!rfs.load_weights("/some/path/to/weights.h5d")) { return; }
+    
+    ImageLabeling* raw_segmentation = rfs.predict(splitGFP);
+    splitGFP->close();
+    ImageMask* nuclei_mask = LabelsMorphology::mask_from_labels(raw_segmentation, {1});
+}
 
-    // 2. Separate cells by thresholding at a certain value.
-    uint16_t t  = AutoThreshold::run<Image16*, uint16_t>(red, AutoThreshold::algorithm::otsu);
-    Image8* res = Threshold::run<Image16*, uint16_t>(red, t);
-
-    // N. Save result as a new image.
-    DataIO::getInstance()->saveAs(res, "/some/path/to/mask.tif");
-
+int main(int argc, char* argv[], char* env[]) {
+    std::cout << "Version 2" << std::endl;
     return 0;
 }
