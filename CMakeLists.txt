@@ -30,18 +30,16 @@ set(ACTIONS_SRC
 	"actions-manager/Receiver.cpp"
 )
 
-set(MEDIAS_SRC
-	"medias/bit_depth.hpp"
-	"medias/Dimensions.hpp"
-	"medias/Dimensions.cpp"
-	"medias/MediaData.hpp"
-	"medias/MediaData.cpp"
-	"medias/Media.hpp"
-	"medias/Media.cpp"
-	"medias/MediaManager.hpp"
-	"medias/MediaManager.cpp"
-	"medias/DataUtils.hpp"
-	"medias/DataUtils.cpp"
+set(DATATYPES_SRC
+	"data-types/data-types.hpp"
+	"data-types/Image.hpp"
+	"data-types/Image.tpp"
+	"data-types/ImageTypes.hpp"
+	"data-types/ImageTypes.cpp"
+	"data-types/Task.hpp"
+	"data-types/Task.cpp"
+	"data-types/Data.hpp"
+	"data-types/Data.cpp"
 )
 
 set(UTILS_SRC
@@ -56,6 +54,7 @@ add_library(STACK_SEGMENT_LIB
 )
 
 target_include_directories(STACK_SEGMENT_LIB
+	PUBLIC "glm"
 	PUBLIC "stack-segments"
 	PUBLIC "googletest/googletest/include"
 	PUBLIC "googletest/googlemock/include"
@@ -77,6 +76,7 @@ add_library(UTILS_LIB
 )
 
 target_include_directories(UTILS_LIB
+	PUBLIC "glm"
 	PUBLIC "stack-segments"
 	PUBLIC "utils"
 	PUBLIC "googletest/googletest/include"
@@ -92,26 +92,27 @@ target_link_libraries(utilsTest
 	PRIVATE gtest_main
 )
 
-# = = = = = = = = = = = = = = = = MEDIAS = = = = = = = = = = = = = = = =
+# = = = = = = = = = = = = = = = = DATATYPES = = = = = = = = = = = = = = = =
 
-add_library(MEDIAS_LIB
-	${MEDIAS_SRC}
+add_library(DATATYPES_LIB
+	${DATATYPES_SRC}
 )
 
-target_include_directories(MEDIAS_LIB
+target_include_directories(DATATYPES_LIB
+	PUBLIC "glm"
 	PUBLIC "stack-segments"
-	PUBLIC "medias"
+	PUBLIC "data-types"
 	PUBLIC "utils"
 	PUBLIC "googletest/googletest/include"
 	PUBLIC "googletest/googlemock/include"
 )
 
-add_executable(mediasTest
-	medias/main.cpp
+add_executable(dataTypesTest
+	"data-types/main.cpp"
 )
 
-target_link_libraries(mediasTest
-	MEDIAS_LIB
+target_link_libraries(dataTypesTest
+	DATATYPES_LIB
 	STACK_SEGMENT_LIB
 	UTILS_LIB
 	gtest_main
@@ -124,8 +125,8 @@ add_library(ACTIONS_LIB
 )
 
 target_include_directories(ACTIONS_LIB
+	PUBLIC "glm"
 	PUBLIC "stack-segments"
-	PUBLIC "medias"
 	PUBLIC "actions-manager"
 	PUBLIC "googletest/googletest/include"
 	PUBLIC "googletest/googlemock/include"
@@ -140,7 +141,6 @@ target_link_libraries(actionsManagerTest
 	ACTIONS_LIB
 	"-Wl,--no-whole-archive"
 	STACK_SEGMENT_LIB
-	MEDIAS_LIB
 	gtest_main
 )
 
