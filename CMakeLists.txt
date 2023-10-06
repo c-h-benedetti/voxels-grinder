@@ -30,21 +30,26 @@ set(ACTIONS_SRC
 	"actions-manager/Receiver.cpp"
 )
 
-set(DATATYPES_SRC
-	"data-types/data-types.hpp"
-	"data-types/Image.hpp"
-	"data-types/Image.tpp"
-	"data-types/ImageTypes.hpp"
-	"data-types/ImageTypes.cpp"
-	"data-types/Task.hpp"
-	"data-types/Task.cpp"
-	"data-types/Data.hpp"
-	"data-types/Data.cpp"
+set(CORE_SRC
+	"core/Bucket.hpp"
+	"core/Data.hpp"
+	"core/Data.cpp"
+	"core/ThreadsPool.hpp"
+	"core/ThreadsPool.cpp"
+	"core/VoxelsCanvas.hpp"
+	"core/VoxelsCanvas.cpp"	
+	"core/Vertices.hpp"
+	"core/Vertices.cpp"	
+	"core/PolyLine.hpp"
+	"core/PolyLine.cpp"	
+	"core/Mesh.hpp"
+	"core/Mesh.cpp"	
 )
 
 set(UTILS_SRC
 	"utils/Color.hpp"
 	"utils/Color.cpp"
+	"utils/general.hpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =
@@ -84,7 +89,7 @@ target_include_directories(UTILS_LIB
 )
 
 add_executable(utilsTest
-	utils/main.cpp
+	"utils/main.cpp"
 )
 
 target_link_libraries(utilsTest
@@ -92,30 +97,27 @@ target_link_libraries(utilsTest
 	PRIVATE gtest_main
 )
 
-# = = = = = = = = = = = = = = = = DATATYPES = = = = = = = = = = = = = = = =
+# = = = = = = = = = = = = = = = = CORE = = = = = = = = = = = = = = = =
 
-add_library(DATATYPES_LIB
-	${DATATYPES_SRC}
+add_library(CORE_LIB
+	${CORE_SRC}
 )
 
-target_include_directories(DATATYPES_LIB
+target_include_directories(CORE_LIB
 	PUBLIC "glm"
-	PUBLIC "stack-segments"
-	PUBLIC "data-types"
 	PUBLIC "utils"
+	PUBLIC "stack-segments"
 	PUBLIC "googletest/googletest/include"
 	PUBLIC "googletest/googlemock/include"
 )
 
-add_executable(dataTypesTest
-	"data-types/main.cpp"
+add_executable(coreTest
+	"core/main.cpp"
 )
 
-target_link_libraries(dataTypesTest
-	DATATYPES_LIB
-	STACK_SEGMENT_LIB
-	UTILS_LIB
-	gtest_main
+target_link_libraries(coreTest
+	PUBLIC STACK_SEGMENT_LIB
+	PRIVATE gtest_main
 )
 
 # = = = = = = = = = = = = = = = = ACTIONS MANAGER = = = = = = = = = = = = = = = =
@@ -143,6 +145,7 @@ target_link_libraries(actionsManagerTest
 	STACK_SEGMENT_LIB
 	gtest_main
 )
+
 
 # = = = = = = = = = = = = = = = = | GLOBAL PROJECT | = = = = = = = = = = = = = = = =
 
