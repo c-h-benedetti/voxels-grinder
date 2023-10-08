@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory("googletest")
 
+add_definitions(-DUTEST_DATA="../utests_data/")
+
 set(STACK_SEGMENT_SRC
 	"stack-segments/ID.hpp"
 	"stack-segments/ID.cpp"

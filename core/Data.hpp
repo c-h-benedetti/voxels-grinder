@@ -12,6 +12,16 @@ class Data {
 
 public:
 
+    enum class dtype {
+        voxels,
+        vertices,
+        polyline,
+        polygon,
+        mesh
+    };
+
+public:
+
     inline const std::vector<Bucket>& get_buckets() { return buckets; }
 
     virtual int run(Task& v) = 0;

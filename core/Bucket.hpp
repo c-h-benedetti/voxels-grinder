@@ -16,6 +16,8 @@ class Bucket {
     std::pair<size_t, size_t> overlap_y;
     std::pair<size_t, size_t> overlap_z;
 
+    size_t index; // To store the result in an array.
+
 public:
 
     Bucket() = default;
