@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <limits>
+#include <utility>
 #include "Task.hpp"
 #include "VoxelsCanvas.hpp"
 
@@ -50,7 +51,7 @@ private:
      * Even indices are lower bounds while odd indices are upper bounds.
      * There is a pair of value for each slice on the target.
      */
-    std::vector<float> bounds;
+    std::vector<std::pair<float, float>> bounds;
     
     /**
      * Thresholding method that we want to use.
@@ -93,9 +94,7 @@ public:
     */
     void process_bounds();
 
-    float get_lower_bound(size_t slice=0);
-
-    float get_upper_bound(size_t slice=0);
+    std::pair<float, float> get_bounds(size_t slice=0);
 
     inline const std:: string get_name() const override { return "Thresholder"; }
 

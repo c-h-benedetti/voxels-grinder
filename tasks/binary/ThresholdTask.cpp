@@ -97,15 +97,9 @@ void ThresholdTask::apply_threshold() {
 }
 
 
-float ThresholdTask::get_lower_bound(size_t slice) {
-    if (split_slices) { return bounds[2*slice]; }
+std::pair<float, float> ThresholdTask::get_bounds(size_t slice) {
+    if (split_slices) { return bounds[slice]; }
     return bounds[0];
-}
-
-
-float ThresholdTask::get_upper_bound(size_t slice) {
-    if (split_slices) { return bounds[2*slice+1]; }
-    return bounds[1];
 }
 
 
@@ -116,7 +110,7 @@ void ThresholdTask::set_bounds(float lower, float upper, size_t slice) {
         return; 
     }
 
-    size_t p0=0, p1=1;
+    size_t p=0;
 
     if (split_slices) {
         Bucket b = target->get_global_size();
@@ -124,12 +118,10 @@ void ThresholdTask::set_bounds(float lower, float upper, size_t slice) {
             std::cerr << "[ThresholdTask] The provided index is beyond the number of slices in the canvas." << std::endl;
             return; 
         }
-        p0 = 2*slice;
-        p1 = 2*slice+1;
+        p = slice;
     }
 
-    bounds[p0] = lower;
-    bounds[p1] = (lower > upper) ? lower : upper;
+    bounds[p] = std::pair<float, float>(lower, (lower > upper) ? lower : upper);
 }
 
 // ========================= THRESHOLDING ALGORITHMS ========================= 

@@ -1,18 +1,18 @@
 #ifndef GENERAL_UTILS_HPP_INCLUDED
 #define GENERAL_UTILS_HPP_INCLUDED
 
-/**
- * Are we developing and debugging or building for a release?
- */
-
-#define DEBUG 0
+#ifdef DEBUG_MODE
+    #define ACCESS_MODIFIER public
+#else
+    #define ACCESS_MODIFIER private
+#endif
 
 /**
  * Function allowing to print something only if we are in debug mode.
  * It has the advantage not to require a condition check.
  */
 
-#if DEBUG
+#ifdef DEBUG_MODE
 
 #define DEBUG_PRINT(...) \
 do { std::cerr << #__VA_ARGS__ << " = "; debugPrint(__VA_ARGS__); } while(0)

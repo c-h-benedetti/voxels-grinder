@@ -5,7 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory("googletest")
 
-add_definitions(-DUTEST_DATA="../utests_data/")
+option(DEBUG_MODE "Build in debug mode" ON)
+
+if(DEBUG_MODE)
+    add_definitions(-DDEBUG_MODE)
+endif()
 
 set(STACK_SEGMENT_SRC
 	"stack-segments/ID.hpp"
