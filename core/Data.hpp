@@ -1,38 +1,69 @@
 #ifndef DATA_ROOT_HPP_INCLUDED
 #define DATA_ROOT_HPP_INCLUDED
 
-#include <vector>
-#include "Bucket.hpp"
+#include <cstdint>
+#include <memory>
 
 class Task;
+class DataProxy;
 
 class Data {
 
-    std::vector<Bucket> buckets;
-
 public:
 
-    enum class dtype {
-        voxels,
-        vertices,
-        polyline,
-        polygon,
-        mesh
+    enum class d_type : uint32_t {
+        v_u8 = 1 << 0,
+        v_u16 = 1 << 1,
+        v_f = 1 << 2,
+        v_tpl = 1 << 3,
+        v_mk = 1 << 4,
+        v_lbld = 1 << 5,
+        vertices = 1 << 6,
+        polyline = 1 << 7,
+        polygon = 1 << 8,
+        mesh = 1 << 9
     };
 
+    constexpr static uint32_t vc_mask = static_cast<uint32_t>(d_type::v_u8)  | 
+                                        static_cast<uint32_t>(d_type::v_u16) | 
+                                        static_cast<uint32_t>(d_type::v_f)   | 
+                                        static_cast<uint32_t>(d_type::v_tpl) | 
+                                        static_cast<uint32_t>(d_type::v_mk)  | 
+                                        static_cast<uint32_t>(d_type::v_lbld);
+
+    static inline bool is_voxels_canvas(d_type dt) { return (static_cast<uint32_t>(dt) & vc_mask) != 0; }
+
 public:
 
-    inline const std::vector<Bucket>& get_buckets() { return buckets; }
+    virtual int run(Task& v);
+    void set_proxy(std::unique_ptr<DataProxy> p);
 
-    virtual int run(Task& v) = 0;
-    virtual Data* alike() = 0;
+    virtual d_type dtype() const = 0;
+
+protected:
+
+    std::unique_ptr<DataProxy> proxy;
+
+protected:
 
     virtual ~Data() = default;
 
-    Data() = default;
+    Data() = delete;
+    Data(DataProxy* p): proxy(p) {}
 };
 
+template <typename T>
 class VoxelsCanvas;
+
+class VoxelsCanvasU8;
+class VoxelsCanvasU16;
+class VoxelsCanvasFloat;
+
+class VoxelsCanvasTriplet; // Uses an enum "Mode" to determine "rgb", "hsl" or "cielab".
+
+class MaskCanvas;
+class LabeledCanvas;
+
 class Vertices;
 class PolyLine;
 class Mesh;

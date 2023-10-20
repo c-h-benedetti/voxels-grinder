@@ -1,22 +1,24 @@
 #include <stdexcept>
 #include <limits>
+#include <iostream>
 #include "ThresholdTask.hpp"
 #include "ThreadsPool.hpp"
 
 
-ThresholderTask::ThresholderTask(Data* d, method m, bool by_slice) : Task("Threshold"), split_slices(by_slice) {
+ThresholdTask::ThresholdTask(Data* d, method m, bool by_slice) : Task(), split_slices(by_slice) {
     if(!this->set_target(d)) {
         throw std::invalid_argument("[ThresholdTask]: The provided object couldn't be casted to a VoxelsCanvas.");
     }
 
-    bounds.resize(2*target->getNSlices());
+    const Bucket& b = target->get_global_size();
+    bounds.resize(2*b.nSlices());
 
-    for (size_t i = 0 ; i < target->getNSlices()) {
+    for (size_t i = 0 ; i < b.nSlices() ; i++) {
         bounds[2*i+0] = std::numeric_limits<float>::min();
         bounds[2*i+1] = std::numeric_limits<float>::max();
     }
 
-    this->set_method(m);
+    this->set_threshold_method(m);
 }
 
 
@@ -24,46 +26,46 @@ void ThresholdTask::process_bounds() {
     if (t_method == method::MANUAL) { return; }
     switch (t_method) {
         case(method::OTSU):
-            this->estimate_otsu();
+            // this->estimate_otsu();
             break;
         case(method::YEN):
-            this->estimate_yen();
+            // this->estimate_yen();
             break;
         case(method::MEAN):
-            this->estimate_mean();
+            // this->estimate_mean();
             break;
         case(method::INTERMODES):
-            this->estimate_intermodes();
+            // this->estimate_intermodes();
             break;
         case(method::KAPUR):
-            this->estimate_kapur();
+            // this->estimate_kapur();
             break;
         case(method::SHANBHAG):
-            this->estimate_shanbhag();
+            // this->estimate_shanbhag();
             break;
         case(method::LI):
-            this->estimate_li();
+            // this->estimate_li();
             break;
         case(method::ROSIN):
-            this->estimate_rosin();
+            // this->estimate_rosin();
             break;
         case(method::ADAPTIVE):
-            this->estimate_adaptive();
+            // this->estimate_adaptive();
             break;
         case(method::SAUVOLA):
-            this->estimate_sauvola();
+            // this->estimate_sauvola();
             break;
         case(method::PHANSALKAR):
-            this->estimate_phansalkar();
+            // this->estimate_phansalkar();
             break;
         case(method::TRIANGLE):
-            this->estimate_triangle();
+            // this->estimate_triangle();
             break;
         case(method::MEDIAN):
-            this->estimate_median();
+            // this->estimate_median();
             break;
         case(method::HYSTERESIS):
-            this->estimate_hysteresis();
+            // this->estimate_hysteresis();
             break;
         default:
             std::cerr << "[ThresholdTask]: Requested method is not handled or doesn't exist." << std::endl;
@@ -79,17 +81,13 @@ bool ThresholdTask::set_target(Data* d) {
     // Reset current state anyway
     this->output = nullptr;
     this->target = nullptr;
-    
-    // Try to cast input into VoxelsCanvas
-    VoxelsCanvas* vc = dynamic_cast<VoxelsCanvas*>(d);
 
     // If we don't have a VoxelsCanvas, we abort right away.
-    if (vc == nullptr) {
+    if (!Data::is_voxels_canvas(d->dtype())) {
         return false;
     }
 
-    this->target = vc;
-    this->output = std::make_unique<VoxelsCanvas>(target->getCanvasShape());
+    this->target = d;
     return true;
 }
 
@@ -111,13 +109,6 @@ float ThresholdTask::get_upper_bound(size_t slice) {
 }
 
 
-void ThresholdTask::set_target(VoxelsCanvas* vc) {
-    this->target = vc;
-    if (target == nullptr) { return; }
-    output = std::unique_ptr<VoxelsCanvas>(target->alike());
-}
-
-
 void ThresholdTask::set_bounds(float lower, float upper, size_t slice) {
     
     if (t_method != method::MANUAL) {
@@ -128,7 +119,8 @@ void ThresholdTask::set_bounds(float lower, float upper, size_t slice) {
     size_t p0=0, p1=1;
 
     if (split_slices) {
-        if (slice >= target->getNSlices()) { 
+        Bucket b = target->get_global_size();
+        if (slice >= b.nSlices()) { 
             std::cerr << "[ThresholdTask] The provided index is beyond the number of slices in the canvas." << std::endl;
             return; 
         }
@@ -140,7 +132,7 @@ void ThresholdTask::set_bounds(float lower, float upper, size_t slice) {
     bounds[p1] = (lower > upper) ? lower : upper;
 }
 
-// ============== THRESHOLDING ALGORITHMS ============== 
+// ========================= THRESHOLDING ALGORITHMS ========================= 
 
 bool ThresholdTask::estimate_otsu(Bucket b) {
 

@@ -3,10 +3,11 @@
 
 #include <memory>
 #include <vector>
+#include <limits>
 #include "Task.hpp"
 #include "VoxelsCanvas.hpp"
 
-class ThresholderTask : public Task {
+class ThresholdTask : public Task {
 
 public:
 
@@ -35,13 +36,13 @@ private:
      * Tasks don't modify input images, hence the 'const' flag. 
      * Input's life is not the task's responsability, so we have a raw pointer.
      */
-    const VoxelsCanvas* target;
+    const Data* target;
 
     /**
      * Output's life is our responsability until it is captured by somebody.
      * At the moment it is accessed, the task doesn't own it anymore.
      */
-    std::unique_ptr<VoxelsCanvas> output;
+    std::unique_ptr<Data> output;
     
     /**
      * Lower and upper boundaries of the threshold.
@@ -84,7 +85,7 @@ private:
 
 public:
 
-    ThresholderTask(Data* d, method m=method::MANUAL, bool by_slice=false);
+    ThresholdTask(Data* d, method m=method::MANUAL, bool by_slice=false);
 
     /**
     * Estimate the lower and upper bounds when we are in auto-thresholding mode.
@@ -96,6 +97,8 @@ public:
 
     float get_upper_bound(size_t slice=0);
 
+    inline const std:: string get_name() const override { return "Thresholder"; }
+
     /**
     * Determine which auto-thresholding method is going to be used for the current target.
     * If set to NONE, the manual thresholding is re-activated.
@@ -106,7 +109,7 @@ public:
     * Manually set the upper and lower bounds used to threshold the image.
     * Can also be used to reset both bounds if no argument is provided.
     */
-    void set_bounds(float lower=std::numeric_limits<float>::min(), float upper=std::numeric_limits<float>::max(), size_t slice);
+    void set_bounds(float lower=std::numeric_limits<float>::min(), float upper=std::numeric_limits<float>::max(), size_t slice=1);
 
     /**
      * Uses the formerly processed bounds to create a mask from the target image.
@@ -116,7 +119,7 @@ public:
     /**
      * Transfers the output's ownership.
      */
-    inline std::unique_ptr<VoxelsCanvas> get_mask() { return std::move(this->output); }
+    inline std::unique_ptr<Data> get_mask() { return std::move(this->output); }
 
 };
 

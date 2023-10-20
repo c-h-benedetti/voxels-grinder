@@ -1,8 +1,6 @@
 #ifndef GENERAL_UTILS_HPP_INCLUDED
 #define GENERAL_UTILS_HPP_INCLUDED
 
-#define GET_UTEST(leaf) UTEST_DATA leaf
-
 /**
  * Are we developing and debugging or building for a release?
  */

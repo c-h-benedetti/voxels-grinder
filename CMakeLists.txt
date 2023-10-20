@@ -34,24 +34,69 @@ set(ACTIONS_SRC
 
 set(CORE_SRC
 	"core/Bucket.hpp"
+	"core/Bucket.cpp"
 	"core/Data.hpp"
 	"core/Data.cpp"
+	"core/MetadataManager.hpp"
+	"core/MetadataManager.cpp"
+	"core/Task.hpp"
+	"core/Task.cpp"
 	"core/ThreadsPool.hpp"
 	"core/ThreadsPool.cpp"
-	"core/VoxelsCanvas.hpp"
-	"core/VoxelsCanvas.cpp"	
-	"core/Vertices.hpp"
-	"core/Vertices.cpp"	
-	"core/PolyLine.hpp"
-	"core/PolyLine.cpp"	
-	"core/Mesh.hpp"
-	"core/Mesh.cpp"	
+	"core/DataProxy.hpp"
+	"core/DataProxy.cpp"
+)
+
+set(CONTAINERS_SRC
+	"containers/VoxelsCanvas.hpp"
+	"containers/LabeledCanvas.hpp"
+	"containers/LabeledCanvas.cpp"
+	"containers/MaskCanvas.hpp"
+	"containers/MaskCanvas.cpp"
+	"containers/Mesh.hpp"
+	"containers/Mesh.cpp"
+	"containers/PolyLine.hpp"
+	"containers/PolyLine.cpp"
+	"containers/Vertices.hpp"
+	"containers/Vertices.cpp"
+	"containers/VoxelsCanvasFloat.hpp"
+	"containers/VoxelsCanvasFloat.cpp"
+	"containers/VoxelsCanvasU8.hpp"
+	"containers/VoxelsCanvasU8.cpp"
+	"containers/VoxelsCanvasU16.hpp"
+	"containers/VoxelsCanvasU16.cpp"
+)
+
+set(IO_SRC
+	"io/IOManager.hpp"
+	"io/IOManager.cpp"
+)
+
+set(PROXIES_SRC
+	"proxies/CziProxy.hpp"
+	"proxies/CziProxy.cpp"
+	"proxies/ObjProxy.hpp"
+	"proxies/ObjProxy.cpp"
+	"proxies/PgmProxy.hpp"
+	"proxies/PgmProxy.cpp"
+	"proxies/TiffProxy.hpp"
+	"proxies/TiffProxy.cpp"
+	"proxies/XmlProxy.hpp"
+	"proxies/XmlProxy.cpp"
 )
 
 set(UTILS_SRC
 	"utils/Color.hpp"
 	"utils/Color.cpp"
 	"utils/general.hpp"
+	"utils/general.cpp"
+	"utils/Logger.hpp"
+	"utils/Logger.cpp"
+)
+
+set(TASKS_SRC
+	"tasks/binary/ThresholdTask.hpp"
+	"tasks/binary/ThresholdTask.cpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =
@@ -119,6 +164,128 @@ add_executable(coreTest
 
 target_link_libraries(coreTest
 	PUBLIC STACK_SEGMENT_LIB
+	PRIVATE gtest_main
+	PUBLIC CORE_LIB
+)
+
+include_directories(coreTest, "utils")
+
+# = = = = = = = = = = = = = = = = CONTAINERS = = = = = = = = = = = = = = = =
+
+add_library(CONTAINERS_LIB
+	${CONTAINERS_SRC}
+)
+
+target_include_directories(CONTAINERS_LIB
+	PUBLIC "glm"
+	PUBLIC "utils"
+	PUBLIC "core"
+	PUBLIC "stack-segments"
+	PUBLIC "googletest/googletest/include"
+	PUBLIC "googletest/googlemock/include"
+)
+
+add_executable(containersTest
+	"containers/main.cpp"
+)
+
+target_link_libraries(containersTest
+	PUBLIC STACK_SEGMENT_LIB
+	PUBLIC CORE_LIB
+	PUBLIC CONTAINERS_LIB
+	PRIVATE gtest_main
+)
+
+# = = = = = = = = = = = = = = = = I/O = = = = = = = = = = = = = = = =
+
+add_library(IO_LIB
+	${IO_SRC}
+)
+
+target_include_directories(IO_LIB
+	PUBLIC "glm"
+	PUBLIC "utils"
+	PUBLIC "core"
+	PUBLIC "containers"
+	PUBLIC "proxies"
+	PUBLIC "stack-segments"
+	PUBLIC "googletest/googletest/include"
+	PUBLIC "googletest/googlemock/include"
+)
+
+add_executable(ioTest
+	"io/main.cpp"
+)
+
+target_link_libraries(ioTest
+	PUBLIC STACK_SEGMENT_LIB
+	CORE_LIB
+	CONTAINERS_LIB
+	IO_LIB
+	PRIVATE gtest_main
+)
+
+# = = = = = = = = = = = = = = = = PROXIES = = = = = = = = = = = = = = = =
+
+add_library(PROXIES_LIB
+	${PROXIES_SRC}
+)
+
+target_include_directories(PROXIES_LIB
+	PUBLIC "glm"
+	PUBLIC "utils"
+	PUBLIC "core"
+	PUBLIC "containers"
+	PUBLIC "stack-segments"
+	PUBLIC "proxies"
+	PUBLIC "io"
+	PUBLIC "googletest/googletest/include"
+	PUBLIC "googletest/googlemock/include"
+)
+
+add_executable(proxiesTest
+	"proxies/main.cpp"
+)
+
+target_link_libraries(proxiesTest
+	PUBLIC STACK_SEGMENT_LIB
+	PUBLIC CORE_LIB
+	PUBLIC CONTAINERS_LIB
+	PUBLIC IO_LIB
+	PUBLIC PROXIES_LIB
+	PRIVATE gtest_main
+)
+
+# = = = = = = = = = = = = = = = = TASKS = = = = = = = = = = = = = = = =
+
+add_library(TASKS_LIB
+	${TASKS_SRC}
+)
+
+target_include_directories(TASKS_LIB
+	PUBLIC "glm"
+	PUBLIC "utils"
+	PUBLIC "core"
+	PUBLIC "containers"
+	PUBLIC "stack-segments"
+	PUBLIC "proxies"
+	PUBLIC "io"
+	PUBLIC "tasks"
+	PUBLIC "googletest/googletest/include"
+	PUBLIC "googletest/googlemock/include"
+)
+
+add_executable(tasksTest
+	"tasks/main.cpp"
+)
+
+target_link_libraries(tasksTest
+	PUBLIC STACK_SEGMENT_LIB
+	PUBLIC CORE_LIB
+	PUBLIC CONTAINERS_LIB
+	PUBLIC IO_LIB
+	PUBLIC PROXIES_LIB
+	PUBLIC TASKS_LIB
 	PRIVATE gtest_main
 )
 
