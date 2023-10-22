@@ -6,9 +6,10 @@
 #include <limits>
 #include <utility>
 #include "Task.hpp"
-#include "VoxelsCanvas.hpp"
+#include "Processor.hpp"
+#include "Data.hpp"
 
-class ThresholdTask : public Task {
+class Thresholder : public Processor {
 
 public:
 
@@ -48,8 +49,8 @@ private:
     /**
      * Lower and upper boundaries of the threshold.
      * Everything below the lower and above the upper is considered as being part of the background.
-     * Even indices are lower bounds while odd indices are upper bounds.
      * There is a pair of value for each slice on the target.
+     * If we are in 'global' mode (not slice by slice), there is a single pair in this vector.
      */
     std::vector<std::pair<float, float>> bounds;
     
@@ -67,26 +68,39 @@ private:
 
 private:
 
-    bool estimate_otsu(Bucket b);
-    bool estimate_yen(Bucket b);
-    bool estimate_mean(Bucket b);
-    bool estimate_intermodes(Bucket b);
-    bool estimate_kapur(Bucket b);
-    bool estimate_shanbhag(Bucket b);
-    bool estimate_li(Bucket b);
-    bool estimate_rosin(Bucket b);
-    bool estimate_adaptive(Bucket b);
-    bool estimate_sauvola(Bucket b);
-    bool estimate_phansalkar(Bucket b);
-    bool estimate_triangle(Bucket b);
-    bool estimate_median(Bucket b);
-    bool estimate_hysteresis(Bucket b);
+    struct OtsuTask : public Task {
+        Data* target;
+        
+        int run(const LabeledCanvas* vc, Bucket b) override;
+        int run(const VoxelsCanvasU8* vc, Bucket b) override;
+        int run(const VoxelsCanvasU16* vc, Bucket b) override;
+        int run(const VoxelsCanvasFloat* vc, Bucket b) override;
+
+        int execute(Bucket b) override;
+    };
+
+private:
+
+    bool estimate_otsu();
+    bool estimate_yen();
+    bool estimate_mean();
+    bool estimate_intermodes();
+    bool estimate_kapur();
+    bool estimate_shanbhag();
+    bool estimate_li();
+    bool estimate_rosin();
+    bool estimate_adaptive();
+    bool estimate_sauvola();
+    bool estimate_phansalkar();
+    bool estimate_triangle();
+    bool estimate_median();
+    bool estimate_hysteresis();
 
     bool set_target(Data* d);
 
 public:
 
-    ThresholdTask(Data* d, method m=method::MANUAL, bool by_slice=false);
+    Thresholder(Data* d, method m=method::MANUAL, bool by_slice=false);
 
     /**
     * Estimate the lower and upper bounds when we are in auto-thresholding mode.
@@ -94,9 +108,20 @@ public:
     */
     void process_bounds();
 
+    /**
+    * Returns the lower and upper bounds for a given slice.
+    */
     std::pair<float, float> get_bounds(size_t slice=0);
 
-    inline const std:: string get_name() const override { return "Thresholder"; }
+    /**
+    * Returns the name of that Processor.
+    */
+    inline const std::wstring get_name() const override { return "Thresholder"; }
+
+    /**
+    * Identifier of this processor.
+    */
+    inline std::string get_identifier() const override { return "processors.binary:thresholder"; }
 
     /**
     * Determine which auto-thresholding method is going to be used for the current target.

@@ -4,37 +4,34 @@
 #include <string>
 #include <stdexcept>
 #include "Data.hpp"
+#include "Bucket.hpp"
 
-class Task {
+class unsupported_operation : public std::logic_error {
+public:
+    unsupported_operation(const std::string& message)
+        : std::logic_error(message) {}
+};
 
-protected:
+struct Task {
     
     Task() = default;
-
-    virtual int run(const Data*);
-
-    virtual int run(const MaskCanvas*);
-    virtual int run(const LabeledCanvas*);
-
-    virtual int run(const VoxelsCanvasU8*);
-    virtual int run(const VoxelsCanvasU16*);
-    virtual int run(const VoxelsCanvasFloat*);
-    virtual int run(const VoxelsCanvasTriplet*);
-
-    virtual int run(const Vertices*);
-    virtual int run(const PolyLine*);
-    virtual int run(const Mesh*);
-
-public:
-
-    virtual const std:: string get_name() const = 0;
-
-    virtual bool execute() = 0;
-    virtual void undo();
-
     virtual ~Task() = default;
 
-    friend class Data;
+    virtual int run(const Data*, Bucket b);
+
+    virtual int run(const MaskCanvas*, Bucket b);
+    virtual int run(const LabeledCanvas*, Bucket b);
+
+    virtual int run(const VoxelsCanvasU8*, Bucket b);
+    virtual int run(const VoxelsCanvasU16*, Bucket b);
+    virtual int run(const VoxelsCanvasFloat*, Bucket b);
+    virtual int run(const VoxelsCanvasTriplet*, Bucket b);
+
+    virtual int run(const Vertices*, Bucket b);
+    virtual int run(const PolyLine*, Bucket b);
+    virtual int run(const Mesh*, Bucket b);
+
+    virtual int execute(Bucket b) = 0;
 };
 
 #endif // BASE_TASK_HPP_INCLUDED

@@ -1,72 +1,71 @@
 #include "Task.hpp"
-#include <stdexcept>
 
-int Task::run(const Data*) {
+int Task::run(const Data* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "Data.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const MaskCanvas*) {
+int Task::run(const MaskCanvas* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "MaskCanvas.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const LabeledCanvas*) {
+int Task::run(const LabeledCanvas* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "LabeledCanvas.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const VoxelsCanvasU8*) {
+int Task::run(const VoxelsCanvasU8* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "VoxelsCanvasU8.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const VoxelsCanvasU16*) {
+int Task::run(const VoxelsCanvasU16* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "VoxelsCanvasU16.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const VoxelsCanvasFloat*) {
+int Task::run(const VoxelsCanvasFloat* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "VoxelsCanvasFloat.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const VoxelsCanvasTriplet*) {
+int Task::run(const VoxelsCanvasTriplet* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "VoxelsCanvasTriplet.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const Vertices*) {
+int Task::run(const Vertices* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "Vertices.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const PolyLine*) {
+int Task::run(const PolyLine* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "PolyLine.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 
 
-int Task::run(const Mesh*) {
+int Task::run(const Mesh* a, Bucket b) {
     std::string s = "From " + this->get_name() + ": No runner implemented for type ";
     s += "Mesh.";
-    throw std::invalid_argument(s.c_str());
+    throw std::unsupported_operation(s.c_str());
 }
 

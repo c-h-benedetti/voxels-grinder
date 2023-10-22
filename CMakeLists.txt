@@ -45,6 +45,8 @@ set(CORE_SRC
 	"core/MetadataManager.cpp"
 	"core/Task.hpp"
 	"core/Task.cpp"
+	"core/Processor.hpp"
+	"core/Processor.cpp"
 	"core/ThreadsPool.hpp"
 	"core/ThreadsPool.cpp"
 	"core/DataProxy.hpp"
@@ -99,8 +101,8 @@ set(UTILS_SRC
 )
 
 set(TASKS_SRC
-	"tasks/binary/ThresholdTask.hpp"
-	"tasks/binary/ThresholdTask.cpp"
+	"processors/binary/ThresholdTask.hpp"
+	"processors/binary/ThresholdTask.cpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =
