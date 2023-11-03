@@ -23,6 +23,10 @@ public:
         LOOP
     };
 
+public:
+
+    inline Bucket get_global_dimensions() const { return this->global; }
+
 protected:
 
     inline T* get_data_segment() { return this->data; }

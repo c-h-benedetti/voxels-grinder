@@ -12,16 +12,16 @@ class Data {
 public:
 
     enum class d_type : uint32_t {
-        v_u8 = 1 << 0,
-        v_u16 = 1 << 1,
-        v_f = 1 << 2,
-        v_tpl = 1 << 3,
-        v_mk = 1 << 4,
-        v_lbld = 1 << 5,
+        v_u8     = 1 << 0,
+        v_u16    = 1 << 1,
+        v_f      = 1 << 2,
+        v_tpl    = 1 << 3,
+        v_mk     = 1 << 4,
+        v_lbld   = 1 << 5,
         vertices = 1 << 6,
         polyline = 1 << 7,
-        polygon = 1 << 8,
-        mesh = 1 << 9
+        polygon  = 1 << 8,
+        mesh     = 1 << 9
     };
 
     constexpr static uint32_t vc_mask = static_cast<uint32_t>(d_type::v_u8)  | 
