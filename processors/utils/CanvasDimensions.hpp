@@ -1,16 +1,16 @@
-#ifndef TASK_READ_N_SLICES_HPP_INCLUDED
-#define TASK_READ_N_SLICES_HPP_INCLUDED
+#ifndef TASK_READ_CANVAS_DIMENSIONS_HPP_INCLUDED
+#define TASK_READ_CANVAS_DIMENSIONS_HPP_INCLUDED
 
 #include "Task.hpp"
 
-struct NSlicesTask : public Task {
+struct CanvasDimensionsTask : public Task {
     Data* target;
-    size_t nSlices;
+    Bucket dimensions;
 
-    NSlicesTask() = delete;
-    NSlicesTask(Data* t);
+    CanvasDimensionsTask() = delete;
+    CanvasDimensionsTask(Data* t);
 
-    ~NSlicesTask() = default;
+    ~CanvasDimensionsTask() = default;
 
     int run(const MaskCanvas*, Bucket b) override;
     int run(const LabeledCanvas*, Bucket b) override;
@@ -22,4 +22,4 @@ struct NSlicesTask : public Task {
     int execute(Bucket b) override;
 };
 
-#endif // TASK_READ_N_SLICES_HPP_INCLUDED
+#endif // TASK_READ_CANVAS_DIMENSIONS_HPP_INCLUDED

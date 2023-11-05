@@ -2,7 +2,6 @@
 #define CANVAS_STATISTICS_HPP_INCLUDED
 
 #include <vector>
-#include <map>
 #include <utility>
 #include "Data.hpp"
 #include "Bucket.hpp"
@@ -23,36 +22,76 @@ struct Statistics {
 class CanvasStatistics : public Processor {
     
     Data* target;
-    /**
-     * The pair contains the index of the channel and the frame.
-     * The vector contains a Statistics instance for each individual slice.
-     * So we can have the stats for a slice from a channel from a frame.
-     */
-    std::map<std::pair<size_t, size_t>, std::vector<Statistics>> statistics;
+    std::vector<Statistics> statistics; // We make the statistics of the current stack. One index in the vector is the index of a sliee.
+    Bucket dimensions;
 
 private:
 
-    /**
-     * Task is charge of processing the stats for a slice from a channel from a frame.
-     */
-    struct ProcessStatsTask : public Task {
-        std::vector<Statistics> stats; // Must be as long as there are slices.
+    struct BinningPropertiesTask : public Task {
         Data* target;
+        std::pair<float, float> extremas;
+        float binSize = 1.0f;
+        size_t nBins;
 
         int run(const MaskCanvas*, Bucket b) override;
         int run(const LabeledCanvas*, Bucket b) override;
+
         int run(const VoxelsCanvasU8*, Bucket b) override;
         int run(const VoxelsCanvasU16*, Bucket b) override;
         int run(const VoxelsCanvasFloat*, Bucket b) override;
-        int run(const VoxelsCanvasTriplet*, Bucket b) override;
 
         int execute(Bucket b) override;
 
-        ProcessStatsTask() = delete;
-        ProcessStatsTask(Data* t);
+        BinningPropertiesTask() = delete;
+        BinningPropertiesTask(Data* target, std::pair<float, float> e);
     };
 
-    std::vector<Bucket> make_buckets();
+    struct MinMaxSliceTask : public Task {
+        
+        Data* target;
+        std::vector<Statistics>& slices;
+        Bucket dimensions;
+        size_t channel;
+        size_t frame;
+
+        int run(const MaskCanvas*, Bucket b) override;
+        int run(const LabeledCanvas*, Bucket b) override;
+
+        int run(const VoxelsCanvasU8*, Bucket b) override;
+        int run(const VoxelsCanvasU16*, Bucket b) override;
+        int run(const VoxelsCanvasFloat*, Bucket b) override;
+
+        int execute(Bucket b) override;
+
+        MinMaxSliceTask() = delete;
+        MinMaxSliceTask(Data* target, Bucket d, std::vector<Statistics>& s, size_t c, size_t f);
+    };
+
+    struct HistogramSliceTask : public Task {
+        
+        Data* target; // Canvas from which we have to extract histograms
+        std::vector<Statistics>& slices; // Statistics containers
+        Bucket dimensions; // Global dimensions of the canvas
+        size_t channel; // Channel from which the histograms have to be extracted.
+        size_t frame; // Frame from which the histograms have to be extracted.
+        std::pair<float, float> extremas; // Start and end points of all histograms.
+        size_t nBins; // Number of bins (slots) in the histogram array
+        float binSize; // Size of a bin (number of values covered by a slot)
+
+        int run(const MaskCanvas*, Bucket b) override;
+        int run(const LabeledCanvas*, Bucket b) override;
+
+        int run(const VoxelsCanvasU8*, Bucket b) override;
+        int run(const VoxelsCanvasU16*, Bucket b) override;
+        int run(const VoxelsCanvasFloat*, Bucket b) override;
+
+        int execute(Bucket b) override;
+
+        HistogramSliceTask() = delete;
+        HistogramSliceTask(Data* t, std::vector<Statistics>& s, Bucket d, size_t c, size_t f, std::pair<float, float> e, size_t nb, size_t bn);
+    };
+
+    std::vector<Bucket> make_buckets(size_t channel, size_t frame);
     void set_target(Data* t);
 
 public:
@@ -60,13 +99,11 @@ public:
     inline bool is_streamable() const override { return true; }
 
     void process_statistics(size_t channel=0, size_t frame=0);
-    bool stats_available(size_t channel=0, size_t frame=0);
-    const std::vector<Statistics>& get_stats_by_slice(size_t channel=0, size_t frame=0);
-    Statistics get_canvas_stats(size_t channel=0, size_t frame=0);
+    const std::vector<Statistics>& get_stats_by_slice();
+    Statistics get_canvas_stats();
 
     CanvasStatistics() = delete;
     CanvasStatistics(Data* t);
-
 };
 
 #endif // CANVAS_STATISTICS_HPP_INCLUDED
