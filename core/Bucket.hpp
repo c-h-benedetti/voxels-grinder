@@ -44,7 +44,7 @@ public:
 
     Bucket() = default;
 
-    Bucket(std::pair<size_t, size_t> r, std::pair<size_t, size_t> c, std::pair<size_t, size_t> s={0, 1}, std::pair<size_t, size_t> ch={0, 1}, std::pair<size_t, size_t> fr={0, 1}) {
+    Bucket(std::pair<size_t, size_t> c, std::pair<size_t, size_t> r, std::pair<size_t, size_t> s={0, 1}, std::pair<size_t, size_t> ch={0, 1}, std::pair<size_t, size_t> fr={0, 1}) {
         this->set_rows(r);
         this->set_columns(c);
         this->set_slices(s);

@@ -15,19 +15,17 @@ public:
         v_u8     = 1 << 0,
         v_u16    = 1 << 1,
         v_f      = 1 << 2,
-        v_tpl    = 1 << 3,
-        v_mk     = 1 << 4,
-        v_lbld   = 1 << 5,
-        vertices = 1 << 6,
-        polyline = 1 << 7,
-        polygon  = 1 << 8,
-        mesh     = 1 << 9
+        v_mk     = 1 << 3,
+        v_lbld   = 1 << 4,
+        vertices = 1 << 5,
+        polyline = 1 << 6,
+        polygon  = 1 << 7,
+        mesh     = 1 << 8
     };
 
     constexpr static uint32_t vc_mask = static_cast<uint32_t>(d_type::v_u8)  | 
                                         static_cast<uint32_t>(d_type::v_u16) | 
                                         static_cast<uint32_t>(d_type::v_f)   | 
-                                        static_cast<uint32_t>(d_type::v_tpl) | 
                                         static_cast<uint32_t>(d_type::v_mk)  | 
                                         static_cast<uint32_t>(d_type::v_lbld);
 
@@ -35,9 +33,8 @@ public:
 
 public:
 
-    virtual int run(Task& v);
+    virtual int run(Task* v, Bucket b) = 0;
     void set_proxy(std::unique_ptr<DataProxy> p);
-
     virtual d_type dtype() const = 0;
 
 protected:
@@ -58,8 +55,6 @@ class VoxelsCanvas;
 class VoxelsCanvasU8;
 class VoxelsCanvasU16;
 class VoxelsCanvasFloat;
-
-class VoxelsCanvasTriplet; // Uses an enum "Mode" to determine "rgb", "hsl" or "cielab".
 
 class MaskCanvas;
 class LabeledCanvas;

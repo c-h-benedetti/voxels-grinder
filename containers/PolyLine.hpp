@@ -11,6 +11,7 @@ protected:
 
 public:
 
+    inline int run(Task* v, Bucket b) override  { return v->run(this, b); }
     inline d_type dtype() const override { return Data::d_type::polygon; }
 };
 
