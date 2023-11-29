@@ -35,6 +35,10 @@ public:
     inline Bucket get_global_dimensions() const { return this->global; }
     inline Bucket get_loaded_dimensions() const { return this->loaded; }
 
+    inline T& global_at(size_t l, size_t c, size_t s, size_t ch, size_t fr) { return this->data[this->loaded.at(l, c, s, ch, fr, &this->global)]; }
+    inline T& local_at(size_t l, size_t c, size_t s, size_t ch, size_t fr) { return this->data[this->loaded.at(l, c, s, ch, fr)]; }
+    inline T& at(size_t i) { return this->data[i]; }
+
 protected:
 
     inline T* get_data_segment() { return this->data; }

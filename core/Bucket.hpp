@@ -63,6 +63,10 @@ public:
     inline size_t nSlices() const   { return slices.second - slices.first; }
     inline size_t nChannels() const { return channels.second - channels.first; }
     inline size_t nFrames() const   { return frames.second - frames.first; }
+
+    inline size_t at(size_t l, size_t c, size_t s, size_t ch, size_t f) const {
+        return (f*nChannels()*nSlices()*width()*height()) + (ch*nSlices()*width()*height()) + (s*width()*height()) + (width()*l) + c;
+    }
 };
 
 #endif //BUCKET_LOCATION_HPP_INCLUDED
