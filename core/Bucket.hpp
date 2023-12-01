@@ -3,9 +3,12 @@
 
 #include <utility>
 #include <cstdlib>
+#include <stdexcept>
+#include "Calibration.hpp"
 
 /**
  * @brief The Bucket object is meant to represent a region within a VoxelsCanvas without storing any of its data.
+ *        It is also used as calibrated a bounding-box in the 3D viewer.
  *
  * Since Buckets are also used in the context of multi-threaded processing, they store an index that could also be interpreted as an ID.
  * It allows to reserve a slot in the output buffer for each region without the use of mutex.
@@ -26,43 +29,66 @@
  *
  * Each subdivision must cover the whole superior level.
  */
+
 class Bucket {
 
     std::pair<size_t, size_t> rows;
     std::pair<size_t, size_t> columns;
     std::pair<size_t, size_t> slices;
-    std::pair<size_t, size_t> channels;
     std::pair<size_t, size_t> frames;
 
     std::pair<size_t, size_t> overlap_x;
     std::pair<size_t, size_t> overlap_y;
     std::pair<size_t, size_t> overlap_z;
 
-    size_t index;
+    size_t      index;
+    glm::vec3   origin;
+    Calibration calibration;
+    size_t      channel;
+
+private:
+
+    inline void set_dimension(const std::pair<size_t, size_t>& target, const std::pair<size_t, size_t>& input) {
+        if (input.first >= input.second) { throw std::invalid_argument("Attempt to set a dimension to 0 or a negative value."); }
+        target = input;
+    }
 
 public:
 
-    Bucket() = default;
+    // We don't have an empty constructor as we don't want any dimension to be equal to 0.
+    Bucket() = delete;
 
-    Bucket(std::pair<size_t, size_t> c, std::pair<size_t, size_t> r, std::pair<size_t, size_t> s={0, 1}, std::pair<size_t, size_t> ch={0, 1}, std::pair<size_t, size_t> fr={0, 1}) {
+    Bucket(size_t rows=1, size_t columns=1, size_t slices=1, size_t frames=1):
+        Bucket({0, rows}, {0, columns}, {0, slices}, {0, frames}) {
+
+    }
+
+    Bucket(
+        std::pair<size_t, size_t> r,
+        std::pair<size_t, size_t> c,
+        std::pair<size_t, size_t> s  = {0, 1}, 
+        std::pair<size_t, size_t> fr = {0, 1}
+    ) {
         this->set_rows(r);
         this->set_columns(c);
         this->set_slices(s);
-        this->set_channels(ch);
         this->set_frames(fr);
     }
+
+    inline void set_columns(const std::pair<size_t, size_t>& c) { this->set_dimension(columns, c); }
+    inline void set_rows(const std::pair<size_t, size_t>& r)    { this->set_dimension(rows, r); }
+    inline void set_slices(const std::pair<size_t, size_t>& s)  { this->set_dimension(slices, s); }
+    inline void set_frames(const std::pair<size_t, size_t>& f)  { this->set_dimension(frames, f); }
     
-    inline void set_rows(const std::pair<size_t, size_t>& r)     { rows.first     = r.first; rows.second     = (r.first < r.second) ? (r.second) : (r.first+1); }
-    inline void set_columns(const std::pair<size_t, size_t>& c)  { columns.first  = c.first; columns.second  = (c.first < c.second) ? (c.second) : (c.first+1); }
-    inline void set_slices(const std::pair<size_t, size_t>& s)   { slices.first   = s.first; slices.second   = (s.first < s.second) ? (s.second) : (s.first+1); }
-    inline void set_channels(const std::pair<size_t, size_t>& c) { channels.first = c.first; channels.second = (c.first < c.second) ? (c.second) : (c.first+1); }
-    inline void set_frames(const std::pair<size_t, size_t>& f)   { frames.first   = f.first; frames.second   = (f.first < f.second) ? (f.second) : (f.first+1); }
-    
-    inline size_t height() const    { return rows.second - rows.first; }
-    inline size_t width() const     { return columns.second - columns.first; }
-    inline size_t nSlices() const   { return slices.second - slices.first; }
-    inline size_t nChannels() const { return channels.second - channels.first; }
-    inline size_t nFrames() const   { return frames.second - frames.first; }
+    inline size_t nVoxelsX() const { return columns.second - columns.first; }
+    inline size_t nVoxelsY() const { return rows.second - rows.first; }
+    inline size_t nVoxelsZ() const { return slices.second - slices.first; }
+    inline size_t nFrames() const  { return frames.second - frames.first; }
+
+    inline float width() const    { return (float)this->nVoxelsX() * this->calibration.size_x; }
+    inline float height() const   { return (float)this->nVoxelsY() * this->calibration.size_y; }
+    inline float depth() const    { return (float)this->nVoxelsZ() * this->calibration.size_z; }
+    inline float duration() const { return (float)this->nFrames() * this->calibration.time_interval; }
 };
 
 #endif //BUCKET_LOCATION_HPP_INCLUDED
