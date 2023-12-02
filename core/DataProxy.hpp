@@ -2,8 +2,9 @@
 #define DATA_PROXY_HPP_INCLUDED
 
 #include <filesystem>
-#include "Data.hpp"
 #include "MetadataManager.hpp"
+
+class Data;
 
 class DataProxy {
     

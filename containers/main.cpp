@@ -1,16 +1,8 @@
 #include <iostream>
 #include "gtest/gtest.h"
 
-#include "VoxelsCanvasU8.hpp"
-#include "VoxelsCanvasU16.hpp"
-#include "VoxelsCanvasFloat.hpp"
-
-#include "MaskCanvas.hpp"
-#include "LabeledCanvas.hpp"
-
-#include "Vertices.hpp"
-#include "PolyLine.hpp"
-#include "Mesh.hpp"
+#include "VoxelsCanvas.hpp"
+#include "GeometryCanvas.hpp"
 
 
 TEST(Behavior, B1) {

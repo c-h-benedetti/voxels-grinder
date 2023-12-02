@@ -32,23 +32,23 @@
 
 class Bucket {
 
-    std::pair<size_t, size_t> rows;
-    std::pair<size_t, size_t> columns;
-    std::pair<size_t, size_t> slices;
-    std::pair<size_t, size_t> frames;
+    std::pair<size_t, size_t> rows; // Indices of first and last row stored.
+    std::pair<size_t, size_t> columns; // Indices of first and last columns stored.
+    std::pair<size_t, size_t> slices; // Indices of first and last slices stored.
+    std::pair<size_t, size_t> frames; // Indices of first and last frames stored.
 
-    std::pair<size_t, size_t> overlap_x;
-    std::pair<size_t, size_t> overlap_y;
-    std::pair<size_t, size_t> overlap_z;
+    std::pair<size_t, size_t> overlap_x; // X overlap on either sides.
+    std::pair<size_t, size_t> overlap_y; // Y overlap on either sides.
+    std::pair<size_t, size_t> overlap_z; // Z overlap on either sides.
 
-    size_t      index;
-    glm::vec3   origin;
-    Calibration calibration;
-    size_t      channel;
+    size_t      index; // ID of the bucket, used to prevent access rate in results buffers.
+    glm::vec3   origin; // Origin of the bucket if it is used as a bounding-box.
+    Calibration calibration; // Calibration used.
+    size_t      channel; // Index of the channel that this bucket represents.
 
 private:
 
-    inline void set_dimension(const std::pair<size_t, size_t>& target, const std::pair<size_t, size_t>& input) {
+    inline void set_dimension(std::pair<size_t, size_t>& target, const std::pair<size_t, size_t>& input) {
         if (input.first >= input.second) { throw std::invalid_argument("Attempt to set a dimension to 0 or a negative value."); }
         target = input;
     }
@@ -56,7 +56,7 @@ private:
 public:
 
     // We don't have an empty constructor as we don't want any dimension to be equal to 0.
-    Bucket() = delete;
+    //Bucket() = delete;
 
     Bucket(size_t rows=1, size_t columns=1, size_t slices=1, size_t frames=1):
         Bucket({0, rows}, {0, columns}, {0, slices}, {0, frames}) {
@@ -75,6 +75,8 @@ public:
         this->set_frames(fr);
     }
 
+    inline void set_calibration(Calibration c) { this->calibration = c; }
+
     inline void set_columns(const std::pair<size_t, size_t>& c) { this->set_dimension(columns, c); }
     inline void set_rows(const std::pair<size_t, size_t>& r)    { this->set_dimension(rows, r); }
     inline void set_slices(const std::pair<size_t, size_t>& s)  { this->set_dimension(slices, s); }
@@ -84,11 +86,12 @@ public:
     inline size_t nVoxelsY() const { return rows.second - rows.first; }
     inline size_t nVoxelsZ() const { return slices.second - slices.first; }
     inline size_t nFrames() const  { return frames.second - frames.first; }
+    inline size_t length() const   { return nVoxelsX() * nVoxelsY() * nVoxelsZ() * nFrames(); }
 
-    inline float width() const    { return (float)this->nVoxelsX() * this->calibration.size_x; }
-    inline float height() const   { return (float)this->nVoxelsY() * this->calibration.size_y; }
-    inline float depth() const    { return (float)this->nVoxelsZ() * this->calibration.size_z; }
-    inline float duration() const { return (float)this->nFrames() * this->calibration.time_interval; }
+    inline float width() const    { return (float)this->nVoxelsX() * this->calibration.get_size_x(); }
+    inline float height() const   { return (float)this->nVoxelsY() * this->calibration.get_size_y(); }
+    inline float depth() const    { return (float)this->nVoxelsZ() * this->calibration.get_size_z(); }
+    inline float duration() const { return (float)this->nFrames() * this->calibration.get_time_interval(); }
 };
 
 #endif //BUCKET_LOCATION_HPP_INCLUDED

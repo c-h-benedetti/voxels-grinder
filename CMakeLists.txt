@@ -51,26 +51,15 @@ set(CORE_SRC
 	"core/ThreadsPool.cpp"
 	"core/DataProxy.hpp"
 	"core/DataProxy.cpp"
+	"core/Calibration.hpp"
+	"core/Calibration.cpp"
 )
 
 set(CONTAINERS_SRC
+	"containers/GeometryCanvas.hpp"
+	"containers/GeometryCanvas.cpp"
 	"containers/VoxelsCanvas.hpp"
-	"containers/LabeledCanvas.hpp"
-	"containers/LabeledCanvas.cpp"
-	"containers/MaskCanvas.hpp"
-	"containers/MaskCanvas.cpp"
-	"containers/Mesh.hpp"
-	"containers/Mesh.cpp"
-	"containers/PolyLine.hpp"
-	"containers/PolyLine.cpp"
-	"containers/Vertices.hpp"
-	"containers/Vertices.cpp"
-	"containers/VoxelsCanvasFloat.hpp"
-	"containers/VoxelsCanvasFloat.cpp"
-	"containers/VoxelsCanvasU8.hpp"
-	"containers/VoxelsCanvasU8.cpp"
-	"containers/VoxelsCanvasU16.hpp"
-	"containers/VoxelsCanvasU16.cpp"
+	"containers/VoxelsCanvas.cpp"
 )
 
 set(IO_SRC
@@ -100,9 +89,9 @@ set(UTILS_SRC
 	"utils/Logger.cpp"
 )
 
-set(TASKS_SRC
-	"processors/binary/ThresholdTask.hpp"
-	"processors/binary/ThresholdTask.cpp"
+set(PROCESSORS_SRC
+	"processors/binary/ThresholdProcessor.hpp"
+	"processors/binary/ThresholdProcessor.cpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =
@@ -262,13 +251,13 @@ target_link_libraries(proxiesTest
 	PRIVATE gtest_main
 )
 
-# = = = = = = = = = = = = = = = = TASKS = = = = = = = = = = = = = = = =
+# = = = = = = = = = = = = = = = = PROCESSORS = = = = = = = = = = = = = = = =
 
-add_library(TASKS_LIB
-	${TASKS_SRC}
+add_library(PROCESSORS_LIB
+	${PROCESSORS_SRC}
 )
 
-target_include_directories(TASKS_LIB
+target_include_directories(PROCESSORS_LIB
 	PUBLIC "glm"
 	PUBLIC "utils"
 	PUBLIC "core"
@@ -282,7 +271,7 @@ target_include_directories(TASKS_LIB
 )
 
 add_executable(tasksTest
-	"tasks/main.cpp"
+	"processors/main.cpp"
 )
 
 target_link_libraries(tasksTest
@@ -291,7 +280,7 @@ target_link_libraries(tasksTest
 	PUBLIC CONTAINERS_LIB
 	PUBLIC IO_LIB
 	PUBLIC PROXIES_LIB
-	PUBLIC TASKS_LIB
+	PUBLIC PROCESSORS_LIB
 	PRIVATE gtest_main
 )
 
@@ -333,4 +322,10 @@ target_link_libraries(${PROJECT_NAME}
 	ACTIONS_LIB
 	"-Wl,--no-whole-archive"
 	STACK_SEGMENT_LIB
+	CORE_LIB
+	CONTAINERS_LIB
+	IO_LIB
+	PROXIES_LIB
+	PROCESSORS_LIB
+	gtest_main
 )

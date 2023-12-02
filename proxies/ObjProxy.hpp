@@ -2,7 +2,7 @@
 #define OBJ_PROXY_HPP_INCLUDED
 
 #include "DataProxy.hpp"
-#include "Mesh.hpp"
+#include "GeometryCanvas.hpp"
 
 class ObjProxy : public DataProxy {
 public:

@@ -3,33 +3,30 @@
 
 #include <cstdint>
 #include <memory>
+#include "Bucket.hpp"
+#include "DataProxy.hpp"
 
 class Task;
 class DataProxy;
 
-enum class DisplayFlags : uint64_t {
-    mask   = 1 << 0,
-    labels = 1 << 1
-};
 
 class Data {
 
 public:
 
-    /// Allows to summon the execution of a Task by this object (implements a visitor).
+    // Allows to summon the execution of a Task by this object (implements a visitor).
     virtual int run(Task* v, Bucket b) = 0;
-
-protected:
-
-    uint64_t flags = 0; // Only for display
-    std::unique_ptr<DataProxy> proxy;
-
-protected:
-
-    /// Sets the proxy for this data, which allows to read and write from a file.
-    inline void set_proxy(std::unique_ptr<DataProxy> p) { this->proxy = std::move(p); }
-
     virtual ~Data() = default;
+
+protected:
+
+    // Used to access the dataproxy for the opened file. All channels share the same proxy.
+    std::shared_ptr<DataProxy> proxy;
+
+protected:
+
+    // Sets the proxy for this data, which allows to read and write from a file.
+    inline void set_proxy(std::shared_ptr<DataProxy> p) { this->proxy = p; }
 
     Data() = delete;
     Data(DataProxy* p): proxy(p) {}

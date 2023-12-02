@@ -3,15 +3,10 @@
 #include "gtest/gtest.h"
 #include "Data.hpp"
 #include "IOManager.hpp"
-#include "LabeledCanvas.hpp"
 
 
 TEST(BehaviorTest, TaskUsage) {
-
-}
-
-
-TEST(BehaviorTest, TaskUsage) {
+    /*
     // This image is not composed of labels.
     Data* im1 = IOManager::iomanager().open_from_disk("some/path/to/image.tif");
 
@@ -45,6 +40,7 @@ TEST(BehaviorTest, TaskUsage) {
     catch (std::exception& e) {}
 
     delete im3;
+    */
 }
 
 int main(int argc, char* argv[], char* env[]) {

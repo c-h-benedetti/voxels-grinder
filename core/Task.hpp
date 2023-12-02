@@ -18,18 +18,8 @@ struct Task {
     virtual ~Task() = default;
 
     virtual int run(const Data*, Bucket b);
-
-    virtual int run(const MaskCanvas*, Bucket b);
-    virtual int run(const LabeledCanvas*, Bucket b);
-
-    virtual int run(const VoxelsCanvasU8*, Bucket b);
-    virtual int run(const VoxelsCanvasU16*, Bucket b);
-    virtual int run(const VoxelsCanvasFloat*, Bucket b);
-    virtual int run(const VoxelsCanvasTriplet*, Bucket b);
-
-    virtual int run(const Vertices*, Bucket b);
-    virtual int run(const PolyLine*, Bucket b);
-    virtual int run(const Mesh*, Bucket b);
+    virtual int run(const VoxelsCanvas*, Bucket b);
+    virtual int run(const GeometryCanvas*, Bucket b);
 
     virtual int execute(Bucket b) = 0;
 };

@@ -1,5 +1,5 @@
-#ifndef THRESHOLD_TASK_HPP_INCLUDED
-#define THRESHOLD_TASK_HPP_INCLUDED
+#ifndef THRESHOLD_PROCESSOR_HPP_INCLUDED
+#define THRESHOLD_PROCESSOR_HPP_INCLUDED
 
 #include <memory>
 #include <vector>
@@ -38,13 +38,13 @@ private:
      * Tasks don't modify input images, hence the 'const' flag. 
      * Input's life is not the task's responsability, so we have a raw pointer.
      */
-    const Data* target;
+    const VoxelsCanvas* target;
 
     /**
      * Output's life is our responsability until it is captured by somebody.
      * At the moment it is accessed, the task doesn't own it anymore.
      */
-    std::unique_ptr<Data> output;
+    std::unique_ptr<VoxelsCanvas> output;
     
     /**
      * Lower and upper boundaries of the threshold.
@@ -66,35 +66,8 @@ private:
      */
     bool split_slices=false;
 
-private:
-
-    struct OtsuTask : public Task {
-        Data* target;
-        
-        int run(const LabeledCanvas* vc, Bucket b) override;
-        int run(const VoxelsCanvasU8* vc, Bucket b) override;
-        int run(const VoxelsCanvasU16* vc, Bucket b) override;
-        int run(const VoxelsCanvasFloat* vc, Bucket b) override;
-
-        int execute(Bucket b) override;
-    };
 
 private:
-
-    bool estimate_otsu();
-    bool estimate_yen();
-    bool estimate_mean();
-    bool estimate_intermodes();
-    bool estimate_kapur();
-    bool estimate_shanbhag();
-    bool estimate_li();
-    bool estimate_rosin();
-    bool estimate_adaptive();
-    bool estimate_sauvola();
-    bool estimate_phansalkar();
-    bool estimate_triangle();
-    bool estimate_median();
-    bool estimate_hysteresis();
 
     bool set_target(Data* d);
 
@@ -112,16 +85,6 @@ public:
     * Returns the lower and upper bounds for a given slice.
     */
     std::pair<float, float> get_bounds(size_t slice=0);
-
-    /**
-    * Returns the name of that Processor.
-    */
-    inline const std::wstring get_name() const override { return "Thresholder"; }
-
-    /**
-    * Identifier of this processor.
-    */
-    inline std::string get_identifier() const override { return "processors.binary:thresholder"; }
 
     /**
     * Determine which auto-thresholding method is going to be used for the current target.
@@ -143,11 +106,11 @@ public:
     /**
      * Transfers the output's ownership.
      */
-    inline std::unique_ptr<Data> get_mask() { return std::move(this->output); }
+    inline std::unique_ptr<VoxelsCanvas> get_mask() { return std::move(this->output); }
 
 };
 
-#endif //THRESHOLD_TASK_HPP_INCLUDED
+#endif //THRESHOLD_PROCESSOR_HPP_INCLUDED
 
 /** NOTE:
 *

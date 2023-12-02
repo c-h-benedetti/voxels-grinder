@@ -10,41 +10,32 @@
 #include <mutex>
 #include <atomic>
 
-#include "Bucket.hpp"
+#include "Task.hpp"
 #include "general.hpp"
 
-/**
- * - Ajouter un moyen de kill les workers dans le le threads pool.
- * - Ajouter un tableau qui indique quels threads sont occupés et lesquels sont libres.
- * - Ajouter un booléen qui indique si un des threads a rencontré une erreur.
- * - Le ThreadPool doit pouvoir être summon en une méthode, cepdant, cette fonction doit décomposer le process en 3 phases:
- *     - Preprocess: single thread.
- *     - Process: délègue des fonctions au thread pool.
- *     - Postprocess: single thread qui permet d'assemble les résultats des threads.
-*/
 
+class ThreadsPool {
 
-class ThreadPool {
-
-    std::vector<std::thread> workers;
-    std::function<bool(Bucket)> task;
-    std::vector<Bucket> buckets;
-    std::mutex queueMutex;
+    std::vector<std::thread> workers; // List of threads that will execute the code
+    std::mutex queueMutex; // mutex to block when taking a new bucket.
     std::condition_variable condition;
-    bool stop = false;
-    static std::unique_ptr<ThreadPool> instance;
+    bool stop = false; // Should we kill the threads and destroy the object.
     std::condition_variable allTasksFinishedCondition;
     std::atomic<int> activeTasksCount = std::atomic<int>(0);
 
+    Task* task; // Task object that will be executed. Must be configured.
+    std::vector<Bucket> buckets; // Buckets into which input has been cut.
+    
+    static std::unique_ptr<ThreadsPool> instance;
+
 public:
 
-    ThreadPool(size_t numThreads);
+    ThreadsPool(size_t numThreads);
+    ~ThreadsPool();
 
-    ~ThreadPool();
+    void delegate_task(Task* todo, const std::vector<Bucket>& buckets_list);
 
-    void delegate_task(std::function<bool(Bucket)> todo, std::vector<Bucket>&& buckets_list);
-
-    static ThreadPool* threadpool();
+    static ThreadsPool* threads_pool();
 
 private:
 
@@ -52,3 +43,10 @@ private:
 };
 
 #endif //THREAD_POOL_HPP_INCLUDED
+
+
+/** TODO:
+ * 
+ * - [ ] Créer un tableau de int qui collecte les codes de retour de chaque thread.
+ * 
+ */
