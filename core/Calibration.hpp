@@ -91,32 +91,32 @@ public:
 };
 
 static const std::map<Calibration::TimeUnit, float> time_unit_to_seconds = {
-    {Calibration::TimeUnit::Years, 31536000.0f},
-    {Calibration::TimeUnit::Months, 2628000.0f},
-    {Calibration::TimeUnit::Weeks, 604800.0f},
-    {Calibration::TimeUnit::Days, 86400.0f},
-    {Calibration::TimeUnit::Hours, 3600.0f},
-    {Calibration::TimeUnit::Minutes, 60.0f},
-    {Calibration::TimeUnit::Seconds, 1.0f},
+    {Calibration::TimeUnit::Years       , 31536000.0f},
+    {Calibration::TimeUnit::Months      , 2628000.0f},
+    {Calibration::TimeUnit::Weeks       , 604800.0f},
+    {Calibration::TimeUnit::Days        , 86400.0f},
+    {Calibration::TimeUnit::Hours       , 3600.0f},
+    {Calibration::TimeUnit::Minutes     , 60.0f},
+    {Calibration::TimeUnit::Seconds     , 1.0f},
     {Calibration::TimeUnit::Milliseconds, 0.001f},
     {Calibration::TimeUnit::Microseconds, 0.000001f}
 };
 
 static const std::map<Calibration::SizeUnit, float> size_unit_to_meter = {
-    {Calibration::SizeUnit::Kilometers, 1000.0f},
+    {Calibration::SizeUnit::Kilometers , 1000.0f},
     {Calibration::SizeUnit::Hectometers, 100.0f},
-    {Calibration::SizeUnit::Decameters, 10.0f},
-    {Calibration::SizeUnit::Meters, 1.0f},
-    {Calibration::SizeUnit::Decimeters, 0.1f},
+    {Calibration::SizeUnit::Decameters , 10.0f},
+    {Calibration::SizeUnit::Meters     , 1.0f},
+    {Calibration::SizeUnit::Decimeters , 0.1f},
     {Calibration::SizeUnit::Centimeters, 0.01f},
     {Calibration::SizeUnit::Millimeters, 0.001f},
     {Calibration::SizeUnit::Micrometers, 0.000001f},
-    {Calibration::SizeUnit::Nanometers, 0.000000001f},
-    {Calibration::SizeUnit::Miles, 1609.34f},
-    {Calibration::SizeUnit::Yards, 0.9144f},
-    {Calibration::SizeUnit::Feet, 0.3048f},
-    {Calibration::SizeUnit::Inches, 0.0254f},
-    {Calibration::SizeUnit::Pixels, 1.0f} 
+    {Calibration::SizeUnit::Nanometers , 0.000000001f},
+    {Calibration::SizeUnit::Miles      , 1609.34f},
+    {Calibration::SizeUnit::Yards      , 0.9144f},
+    {Calibration::SizeUnit::Feet       , 0.3048f},
+    {Calibration::SizeUnit::Inches     , 0.0254f},
+    {Calibration::SizeUnit::Pixels     , 1.0f} 
 };
 
 static const std::map<std::string, Calibration::SizeUnit, case_insensitive_compare> txt_to_size_unit = {

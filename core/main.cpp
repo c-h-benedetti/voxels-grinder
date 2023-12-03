@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cmath>
+#include <utility>
+#include <vector>
 #include "gtest/gtest.h"
 #include "Calibration.hpp"
 #include "Bucket.hpp"
@@ -9,6 +11,36 @@
 // #    CALIBRATION                                                            #
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+
+TEST(Calibration, LexicographicOrder) {
+    RecordProperty("description", "Lexicographic sorting is not affected by the case.");
+
+    std::vector<std::pair<std::string, std::string>> valid = {
+        {""  , ""},
+        {"a" , "a"},
+        {"a" , "A"},
+        {"ab", "Ab"},
+        {"Ab", "aB"},
+        {"_b", "_B"},
+
+    };
+
+    std::vector<std::pair<std::string, std::string>> invalid = {
+        {"" , "a"},
+        {"a", "b"},
+        {"-", "_"}
+    };
+
+    case_insensitive_compare cic;
+
+    for (const std::pair<std::string, std::string>& input : valid) {
+        EXPECT_FALSE(cic(input.first, input.second));
+    }
+
+    for (const std::pair<std::string, std::string>& input : invalid) {
+        EXPECT_TRUE(cic(input.first, input.second));
+    }
+}
 
 TEST(Calibration, ReadingCorrect) {
     RecordProperty("description", "All the units should be correctly read and recognized.");
@@ -127,6 +159,18 @@ TEST(Bucket, CorrectSize) {
     EXPECT_TRUE(std::abs(b.height() - static_cast<float>(height)*c.get_size_y()) < threshold);
     EXPECT_TRUE(std::abs(b.depth() - static_cast<float>(depth)*c.get_size_z()) < threshold);
 }
+
+
+// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+// #    TASK & THREADSPOOL                                                     #
+// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class TestTask : public Task {
+    
+};
+
+
+/* ========================================================================== */
 
 
 int main(int argc, char* argv[], char* env[]) {

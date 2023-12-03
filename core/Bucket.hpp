@@ -81,17 +81,19 @@ public:
     inline void set_rows(const std::pair<size_t, size_t>& r)    { this->set_dimension(rows, r); }
     inline void set_slices(const std::pair<size_t, size_t>& s)  { this->set_dimension(slices, s); }
     inline void set_frames(const std::pair<size_t, size_t>& f)  { this->set_dimension(frames, f); }
+    inline void set_index(size_t i)                             { this->index = i; }
     
-    inline size_t nVoxelsX() const { return columns.second - columns.first; }
-    inline size_t nVoxelsY() const { return rows.second - rows.first; }
-    inline size_t nVoxelsZ() const { return slices.second - slices.first; }
-    inline size_t nFrames() const  { return frames.second - frames.first; }
-    inline size_t length() const   { return nVoxelsX() * nVoxelsY() * nVoxelsZ() * nFrames(); }
+    inline size_t nVoxelsX() const  { return columns.second - columns.first; }
+    inline size_t nVoxelsY() const  { return rows.second - rows.first; }
+    inline size_t nVoxelsZ() const  { return slices.second - slices.first; }
+    inline size_t nFrames() const   { return frames.second - frames.first; }
+    inline size_t length() const    { return nVoxelsX() * nVoxelsY() * nVoxelsZ() * nFrames(); }
+    inline size_t get_index() const { return this->index; }
 
     inline float width() const    { return (float)this->nVoxelsX() * this->calibration.get_size_x(); }
     inline float height() const   { return (float)this->nVoxelsY() * this->calibration.get_size_y(); }
     inline float depth() const    { return (float)this->nVoxelsZ() * this->calibration.get_size_z(); }
-    inline float duration() const { return (float)this->nFrames() * this->calibration.get_time_interval(); }
+    inline float duration() const { return (float)this->nFrames()  * this->calibration.get_time_interval(); }
 };
 
 #endif //BUCKET_LOCATION_HPP_INCLUDED
