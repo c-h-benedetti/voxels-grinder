@@ -11,7 +11,7 @@
 #include <atomic>
 
 #include "Task.hpp"
-#include "general.hpp"
+#include "utils/general.hpp"
 
 
 class ThreadsPool {

@@ -3,10 +3,11 @@
 
 #include <vector>
 #include <utility>
-#include "Data.hpp"
-#include "Bucket.hpp"
-#include "Task.hpp"
-#include "Processor.hpp"
+
+#include "core/Data.hpp"
+#include "core/Bucket.hpp"
+#include "core/Task.hpp"
+#include "core/Processor.hpp"
 
 struct Statistics {
     std::vector<uint32_t> histogram;

@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <locale>
-#include "glm.hpp"
+#include "glm/glm.hpp"
 
 
 struct case_insensitive_compare {

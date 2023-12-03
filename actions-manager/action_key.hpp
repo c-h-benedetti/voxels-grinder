@@ -1,7 +1,7 @@
 #ifndef ACTION_KEY_HPP_INCLUDED
 #define ACTION_KEY_HPP_INCLUDED
 
-#include "StackSegment.hpp"
+#include "stack-segments/StackSegment.hpp"
 
 #define SIZE_OF_ACTION_KEY 32
 

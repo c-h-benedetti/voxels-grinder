@@ -1,5 +1,5 @@
-#include "VoxelsCanvas.hpp"
-#include "Task.hpp"
+#include "containers/VoxelsCanvas.hpp"
+#include "core/Task.hpp"
 
 VoxelsCanvas::VoxelsCanvas(DataProxy* p) : Data(p) {
 

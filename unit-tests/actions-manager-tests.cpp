@@ -1,8 +1,8 @@
-#include "ActionPathCategory.hpp"
-#include "ActionsManager.hpp"
-#include "BaseArgument.hpp"
-#include "ActionPathAutomata.hpp"
-#include "Receiver.hpp"
+#include "actions-manager/ActionPathCategory.hpp"
+#include "actions-manager/ActionsManager.hpp"
+#include "actions-manager/BaseArgument.hpp"
+#include "actions-manager/ActionPathAutomata.hpp"
+#include "actions-manager/Receiver.hpp"
 #include <iostream>
 #include <functional>
 #include <fstream>
@@ -74,7 +74,6 @@ TEST(Hint, NumberOfBytes) {
         "🎯 C'est un hint pour un paramètre. À voir où il est utilisé. Pas de taille limite ici.", 
         ""
     );
-    std::cout << hint.getAssembled() << std::endl;
 }
 
 // class PathAutomataTest : public ::testing::Test {
@@ -126,16 +125,3 @@ TEST(Hint, NumberOfBytes) {
 //         testing_data{State::CAPED, "first.second:", {"first", "second"}, "", false}
 //     };
 // };
-
-
-// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-int main(int argc, char* argv[], char* env[]) {
-
-    testing::GTEST_FLAG(output) = "xml:./actionsManagerTesting.xml";
-
-    testing::InitGoogleTest(&argc, argv);
-
-    return RUN_ALL_TESTS();
-}

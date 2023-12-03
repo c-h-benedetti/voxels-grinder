@@ -1,9 +1,10 @@
 #include <stdexcept>
 #include <limits>
 #include <iostream>
-#include "ThreadsPool.hpp"
+
 #include "ThresholdProcessor.hpp"
-#include "VoxelsCanvas.hpp"
+#include "core/ThreadsPool.hpp"
+#include "containers/VoxelsCanvas.hpp"
 
 
 Thresholder::Thresholder(Data* d, method m, bool by_slice) : Processor(), split_slices(by_slice) {

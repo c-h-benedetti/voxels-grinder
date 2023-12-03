@@ -3,8 +3,8 @@
 #include <utility>
 #include <vector>
 #include "gtest/gtest.h"
-#include "Calibration.hpp"
-#include "Bucket.hpp"
+#include "core/Calibration.hpp"
+#include "core/Bucket.hpp"
 
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -158,23 +158,4 @@ TEST(Bucket, CorrectSize) {
     EXPECT_TRUE(std::abs(b.width() - static_cast<float>(width)*c.get_size_x()) < threshold);
     EXPECT_TRUE(std::abs(b.height() - static_cast<float>(height)*c.get_size_y()) < threshold);
     EXPECT_TRUE(std::abs(b.depth() - static_cast<float>(depth)*c.get_size_z()) < threshold);
-}
-
-
-// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #    TASK & THREADSPOOL                                                     #
-// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class TestTask : public Task {
-    
-};
-
-
-/* ========================================================================== */
-
-
-int main(int argc, char* argv[], char* env[]) {
-    ::testing::GTEST_FLAG(output) = "xml:./core_tests.xml";
-    ::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
 }

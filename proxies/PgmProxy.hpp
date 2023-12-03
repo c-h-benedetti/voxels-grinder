@@ -1,8 +1,8 @@
 #ifndef PGM_PROXY_HPP_INCLUDED
 #define PGM_PROXY_HPP_INCLUDED
 
-#include "DataProxy.hpp"
-#include "VoxelsCanvas.hpp"
+#include "core/DataProxy.hpp"
+#include "containers/VoxelsCanvas.hpp"
 
 class PgmProxy : public DataProxy {
 public:

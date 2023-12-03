@@ -101,19 +101,7 @@ add_library(STACK_SEGMENT_LIB
 )
 
 target_include_directories(STACK_SEGMENT_LIB
-	PUBLIC "glm"
-	PUBLIC "stack-segments"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(stackSegmentTest
-	stack-segments/main.cpp
-)
-
-target_link_libraries(stackSegmentTest
-	PUBLIC STACK_SEGMENT_LIB
-	PRIVATE gtest_main
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # = = = = = = = = = = = = = = = = UTILS = = = = = = = = = = = = = = = =
@@ -123,20 +111,7 @@ add_library(UTILS_LIB
 )
 
 target_include_directories(UTILS_LIB
-	PUBLIC "glm"
-	PUBLIC "stack-segments"
-	PUBLIC "utils"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(utilsTest
-	"utils/main.cpp"
-)
-
-target_link_libraries(utilsTest
-	PUBLIC UTILS_LIB
-	PRIVATE gtest_main
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # = = = = = = = = = = = = = = = = CORE = = = = = = = = = = = = = = = =
@@ -146,21 +121,7 @@ add_library(CORE_LIB
 )
 
 target_include_directories(CORE_LIB
-	PUBLIC "glm"
-	PUBLIC "utils"
-	PUBLIC "stack-segments"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(coreTest
-	"core/main.cpp"
-)
-
-target_link_libraries(coreTest
-	PUBLIC STACK_SEGMENT_LIB
-	PRIVATE gtest_main
-	PUBLIC CORE_LIB
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 include_directories(coreTest, "utils")
@@ -172,23 +133,7 @@ add_library(CONTAINERS_LIB
 )
 
 target_include_directories(CONTAINERS_LIB
-	PUBLIC "glm"
-	PUBLIC "utils"
-	PUBLIC "core"
-	PUBLIC "stack-segments"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(containersTest
-	"containers/main.cpp"
-)
-
-target_link_libraries(containersTest
-	PUBLIC STACK_SEGMENT_LIB
-	PUBLIC CORE_LIB
-	PUBLIC CONTAINERS_LIB
-	PRIVATE gtest_main
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # = = = = = = = = = = = = = = = = I/O = = = = = = = = = = = = = = = =
@@ -198,26 +143,7 @@ add_library(IO_LIB
 )
 
 target_include_directories(IO_LIB
-	PUBLIC "glm"
-	PUBLIC "utils"
-	PUBLIC "core"
-	PUBLIC "containers"
-	PUBLIC "proxies"
-	PUBLIC "stack-segments"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(ioTest
-	"io/main.cpp"
-)
-
-target_link_libraries(ioTest
-	PUBLIC STACK_SEGMENT_LIB
-	CORE_LIB
-	CONTAINERS_LIB
-	IO_LIB
-	PRIVATE gtest_main
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # = = = = = = = = = = = = = = = = PROXIES = = = = = = = = = = = = = = = =
@@ -227,28 +153,7 @@ add_library(PROXIES_LIB
 )
 
 target_include_directories(PROXIES_LIB
-	PUBLIC "glm"
-	PUBLIC "utils"
-	PUBLIC "core"
-	PUBLIC "containers"
-	PUBLIC "stack-segments"
-	PUBLIC "proxies"
-	PUBLIC "io"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(proxiesTest
-	"proxies/main.cpp"
-)
-
-target_link_libraries(proxiesTest
-	PUBLIC STACK_SEGMENT_LIB
-	PUBLIC CORE_LIB
-	PUBLIC CONTAINERS_LIB
-	PUBLIC IO_LIB
-	PUBLIC PROXIES_LIB
-	PRIVATE gtest_main
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # = = = = = = = = = = = = = = = = PROCESSORS = = = = = = = = = = = = = = = =
@@ -258,30 +163,7 @@ add_library(PROCESSORS_LIB
 )
 
 target_include_directories(PROCESSORS_LIB
-	PUBLIC "glm"
-	PUBLIC "utils"
-	PUBLIC "core"
-	PUBLIC "containers"
-	PUBLIC "stack-segments"
-	PUBLIC "proxies"
-	PUBLIC "io"
-	PUBLIC "tasks"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
-)
-
-add_executable(tasksTest
-	"processors/main.cpp"
-)
-
-target_link_libraries(tasksTest
-	PUBLIC STACK_SEGMENT_LIB
-	PUBLIC CORE_LIB
-	PUBLIC CONTAINERS_LIB
-	PUBLIC IO_LIB
-	PUBLIC PROXIES_LIB
-	PUBLIC PROCESSORS_LIB
-	PRIVATE gtest_main
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # = = = = = = = = = = = = = = = = ACTIONS MANAGER = = = = = = = = = = = = = = = =
@@ -291,25 +173,35 @@ add_library(ACTIONS_LIB
 )
 
 target_include_directories(ACTIONS_LIB
-	PUBLIC "glm"
-	PUBLIC "stack-segments"
-	PUBLIC "actions-manager"
-	PUBLIC "googletest/googletest/include"
-	PUBLIC "googletest/googlemock/include"
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(actionsManagerTest
-	actions-manager/main.cpp
+# = = = = = = = = = = = = = = = = |   UNIT TESTS   | = = = = = = = = = = = = = = = =
+
+add_executable("unitTests"
+	"unit-tests/actions-manager-tests.cpp"
+	"unit-tests/containers-tests.cpp"
+	"unit-tests/core-tests.cpp"
+	"unit-tests/io-tests.cpp"
+	"unit-tests/processors-tests.cpp"
+	"unit-tests/proxies-tests.cpp"
+	"unit-tests/stack-segment-tests.cpp"
+	"unit-tests/utils-tests.cpp"
+	"unit-tests/main.cpp"
 )
 
-target_link_libraries(actionsManagerTest
+target_link_libraries("unitTests"
 	"-Wl,--whole-archive"
 	ACTIONS_LIB
 	"-Wl,--no-whole-archive"
 	STACK_SEGMENT_LIB
+	CORE_LIB
+	CONTAINERS_LIB
+	IO_LIB
+	PROXIES_LIB
+	PROCESSORS_LIB
 	gtest_main
 )
-
 
 # = = = = = = = = = = = = = = = = | GLOBAL PROJECT | = = = = = = = = = = = = = = = =
 

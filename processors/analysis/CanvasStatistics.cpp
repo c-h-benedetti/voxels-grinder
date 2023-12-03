@@ -1,6 +1,6 @@
 #include <limits>
 #include "CanvasStatistics.hpp"
-#include "CanvasDimensions.hpp"
+#include "processors/utils/CanvasDimensions.hpp"
 
 // =========== Implementation of the [Statistics] class ===================
 

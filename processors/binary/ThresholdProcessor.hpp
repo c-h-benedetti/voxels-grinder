@@ -5,9 +5,10 @@
 #include <vector>
 #include <limits>
 #include <utility>
-#include "Task.hpp"
-#include "Processor.hpp"
-#include "Data.hpp"
+
+#include "core/Task.hpp"
+#include "core/Processor.hpp"
+#include "core/Data.hpp"
 
 class Thresholder : public Processor {
 

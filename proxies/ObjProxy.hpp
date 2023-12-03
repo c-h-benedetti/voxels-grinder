@@ -1,8 +1,8 @@
 #ifndef OBJ_PROXY_HPP_INCLUDED
 #define OBJ_PROXY_HPP_INCLUDED
 
-#include "DataProxy.hpp"
-#include "GeometryCanvas.hpp"
+#include "core/DataProxy.hpp"
+#include "containers/GeometryCanvas.hpp"
 
 class ObjProxy : public DataProxy {
 public:

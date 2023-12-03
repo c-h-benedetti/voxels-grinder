@@ -1,7 +1,7 @@
 #ifndef TASK_READ_CANVAS_DIMENSIONS_HPP_INCLUDED
 #define TASK_READ_CANVAS_DIMENSIONS_HPP_INCLUDED
 
-#include "Task.hpp"
+#include "core/Task.hpp"
 
 struct CanvasDimensionsTask : public Task {
     Data* target;

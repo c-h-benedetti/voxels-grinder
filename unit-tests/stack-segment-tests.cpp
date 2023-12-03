@@ -1,8 +1,8 @@
 #include <iostream>
 #include <map>
-#include "ID.hpp"
-#include "StackSegment.hpp"
-#include "LUT_IDs.h"
+#include "stack-segments/ID.hpp"
+#include "stack-segments/StackSegment.hpp"
+#include "stack-segments/LUT_IDs.h"
 #include "gtest/gtest.h"
 
 
@@ -281,20 +281,4 @@ TEST(ID, NullID) {
 		EXPECT_EQ(id2[i], 0);
 		EXPECT_EQ(id3[i], 0);
 	}
-}
-
-/* #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-# */
-
-
-int main(int argc, char* argv[], char* env[]){
-
-	testing::GTEST_FLAG(output) = "xml:./basicBuffersTesting.xml";
-
-    testing::InitGoogleTest();
-
-    if (RUN_ALL_TESTS()){
-        std::cerr << "At least a test failed" << std::endl;
-    }
-
-	return 0;
 }

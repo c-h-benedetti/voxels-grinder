@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <stdexcept>
-#include "Data.hpp"
-#include "Bucket.hpp"
+#include "core/Data.hpp"
+#include "core/Bucket.hpp"
 
 class VoxelsCanvas : public Data {
 

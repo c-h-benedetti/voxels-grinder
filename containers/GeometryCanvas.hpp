@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_HPP_INCLUDED
 #define GEOMETRY_HPP_INCLUDED
 
-#include "glm.hpp"
-#include "Data.hpp"
+#include "glm/glm.hpp"
+#include "core/Data.hpp"
 
 class Geometry {
 	size_t channel;

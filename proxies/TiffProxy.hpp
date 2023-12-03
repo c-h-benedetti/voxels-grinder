@@ -1,8 +1,8 @@
 #ifndef TIFF_PROXY_HPP_INCLUDED
 #define TIFF_PROXY_HPP_INCLUDED
 
-#include "DataProxy.hpp"
-#include "VoxelsCanvas.hpp"
+#include "core/DataProxy.hpp"
+#include "containers/VoxelsCanvas.hpp"
 
 class TiffProxy : public DataProxy {
 public:
