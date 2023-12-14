@@ -75,6 +75,14 @@ public:
         this->set_frames(fr);
     }
 
+    inline size_t index_of(size_t c, size_t l, size_t s, size_t f) const { 
+        size_t W = this->nVoxelsX();
+        size_t H = this->nVoxelsY();
+        size_t D = this->nVoxelsZ();
+        size_t wh = W*H;
+        return wh*D*f + wh*s + W*l+c;
+    }
+
     inline void set_calibration(Calibration c) { this->calibration = c; }
 
     inline void set_columns(const std::pair<size_t, size_t>& c) { this->set_dimension(columns, c); }
@@ -86,6 +94,7 @@ public:
     inline size_t nVoxelsX() const  { return columns.second - columns.first; }
     inline size_t nVoxelsY() const  { return rows.second - rows.first; }
     inline size_t nVoxelsZ() const  { return slices.second - slices.first; }
+    inline size_t nSlices() const   { return slices.second - slices.first; }
     inline size_t nFrames() const   { return frames.second - frames.first; }
     inline size_t length() const    { return nVoxelsX() * nVoxelsY() * nVoxelsZ() * nFrames(); }
     inline size_t get_index() const { return this->index; }
@@ -95,5 +104,10 @@ public:
     inline float depth() const    { return (float)this->nVoxelsZ() * this->calibration.get_size_z(); }
     inline float duration() const { return (float)this->nFrames()  * this->calibration.get_time_interval(); }
 };
+
+/** TODO:
+ * - [ ] Les nombres de voxels sur chaque axe devraient être stockés plutôt que calculés.
+ */
+
 
 #endif //BUCKET_LOCATION_HPP_INCLUDED

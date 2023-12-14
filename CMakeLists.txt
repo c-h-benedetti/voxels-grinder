@@ -92,6 +92,8 @@ set(UTILS_SRC
 set(PROCESSORS_SRC
 	"processors/binary/ThresholdProcessor.hpp"
 	"processors/binary/ThresholdProcessor.cpp"
+	"processors/analysis/CanvasStatistics.hpp"
+	"processors/analysis/CanvasStatistics.cpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =

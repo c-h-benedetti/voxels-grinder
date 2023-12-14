@@ -42,6 +42,27 @@ TEST(Calibration, LexicographicOrder) {
     }
 }
 
+TEST(Calibration, NoCaps) {
+    RecordProperty("description", "Are the input with capital recorded without case?");
+
+    std::vector<std::pair<std::string, std::string>> equivalent = {
+        {""  , ""},
+        {"a" , "a"},
+        {"A" , "a"},
+        {"Ab", "ab"},
+        {"Ab", "ab"},
+        {"_B", "_b"},
+
+    };
+
+    std::map<std::string, Calibration::SizeUnit, case_insensitive_compare> nocase_map;
+
+    for (const std::pair<std::string, std::string>& input : equivalent) {
+        nocase_map[input.first] = Calibration::SizeUnit::Micrometers;
+        EXPECT_TRUE(nocase_map.find(input.second) != nocase_map.end());
+    }
+}
+
 TEST(Calibration, ReadingCorrect) {
     RecordProperty("description", "All the units should be correctly read and recognized.");
     
