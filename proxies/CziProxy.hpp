@@ -1,8 +1,8 @@
 #ifndef CZI_PROXY_HPP_INCLUDED
 #define CZI_PROXY_HPP_INCLUDED
 
-#include "VoxelsCanvas.hpp"
-#include "DataProxy.hpp"
+#include "core/DataProxy.hpp"
+#include "containers/VoxelsCanvas.hpp"
 
 class CziProxy : public DataProxy {
 public:

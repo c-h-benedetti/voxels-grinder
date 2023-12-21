@@ -3,6 +3,7 @@
 
 #ifdef DEBUG_MODE
     #define ACCESS_MODIFIER public
+    #include <iostream>
 #else
     #define ACCESS_MODIFIER private
 #endif

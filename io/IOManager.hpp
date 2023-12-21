@@ -4,15 +4,15 @@
 #include <map>
 #include <functional>
 #include <filesystem>
-#include "Data.hpp"
-#include "VoxelsCanvas.hpp"
-#include "StackSegment.hpp"
+#include "core/Data.hpp"
+#include "containers/VoxelsCanvas.hpp"
+#include "stack-segments/StackSegment.hpp"
 
-#include "TiffProxy.hpp"
-#include "XmlProxy.hpp"
-#include "ObjProxy.hpp"
-#include "CziProxy.hpp"
-#include "PgmProxy.hpp"
+#include "proxies/TiffProxy.hpp"
+#include "proxies/XmlProxy.hpp"
+#include "proxies/ObjProxy.hpp"
+#include "proxies/CziProxy.hpp"
+#include "proxies/PgmProxy.hpp"
 
 #define SIZE_OF_EXTENSION 16
 

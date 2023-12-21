@@ -3,70 +3,161 @@
 
 #include <utility>
 #include <cstdlib>
+#include <stdexcept>
+#include "Calibration.hpp"
 
-/**
- * @brief The Bucket object is meant to represent a region within a VoxelsCanvas without storing any of its data.
- *
- * Since Buckets are also used in the context of multi-threaded processing, they store an index that could also be interpreted as an ID.
- * It allows to reserve a slot in the output buffer for each region without the use of mutex.
- * 
- * A Bucket also stores indices indicating if it contain some overlap, in which case, it should be accessed but not processed.
- *
- * Each axis must be a size of at least 1. The upper bound is never included in the loops.
- * It implies that each `XXX.second` is strictly greater than `XXX.first`.
- *
- * A bucket can contain some padding on one side, but not on the other.
- * Hence, we don't store only padding size on the x, y and z axes but two values for each axis.
- * A function is responsible for generating the list of "processing buckets" for an image.
- *
- * This object can represent several types of areas:
- *  - Global bucket: It represents the actual size of the entire image.
- *  - Loading bucket: The area from the global image that is actually loaded in RAM. It subdivides the global bucket.
- *  - Processing bucket: How the process is fractioned to be launched on several threads. It subdivides a loading bucket.
- *
- * Each subdivision must cover the whole superior level.
- */
+
 class Bucket {
 
-    std::pair<size_t, size_t> rows;
-    std::pair<size_t, size_t> columns;
-    std::pair<size_t, size_t> slices;
-    std::pair<size_t, size_t> channels;
-    std::pair<size_t, size_t> frames;
+    friend class Iterator;
+    size_t canvasColumns, canvasRows, canvasSlices, canvasFrames; // Dimensions of the canvas we are refering to.
+    std::pair<size_t, size_t> localColumns, localRows, localSlices, localFrames;
+    std::pair<size_t, size_t> overlap_x, overlap_y, overlap_z;
+    glm::vec3 origin; // Origin of the bucket if it is used as a bounding-box.
+    size_t start_frame=0;
+    Calibration calibration; // Calibration used.
 
-    std::pair<size_t, size_t> overlap_x;
-    std::pair<size_t, size_t> overlap_y;
-    std::pair<size_t, size_t> overlap_z;
+private:
 
-    size_t index;
+    inline void set_span(std::pair<size_t, size_t>& target, const std::pair<size_t, size_t>& input, const size_t& bound) {
+        if (input.first >= input.second) { throw std::invalid_argument("Attempt to set a dimension to 0 or a negative value."); }
+        if (input.first >= bound) { throw std::invalid_argument("A local range can't start after end-of-axis."); }
+        if (input.second > bound) { throw std::invalid_argument("A local range can't stop after end-of-axis."); }
+        target = input;
+    }
 
 public:
 
-    Bucket() = default;
+    class Iterator {
 
-    Bucket(std::pair<size_t, size_t> c, std::pair<size_t, size_t> r, std::pair<size_t, size_t> s={0, 1}, std::pair<size_t, size_t> ch={0, 1}, std::pair<size_t, size_t> fr={0, 1}) {
-        this->set_rows(r);
-        this->set_columns(c);
-        this->set_slices(s);
-        this->set_channels(ch);
-        this->set_frames(fr);
-    }
-    
-    inline void set_rows(const std::pair<size_t, size_t>& r)     { rows.first     = r.first; rows.second     = (r.first < r.second) ? (r.second) : (r.first+1); }
-    inline void set_columns(const std::pair<size_t, size_t>& c)  { columns.first  = c.first; columns.second  = (c.first < c.second) ? (c.second) : (c.first+1); }
-    inline void set_slices(const std::pair<size_t, size_t>& s)   { slices.first   = s.first; slices.second   = (s.first < s.second) ? (s.second) : (s.first+1); }
-    inline void set_channels(const std::pair<size_t, size_t>& c) { channels.first = c.first; channels.second = (c.first < c.second) ? (c.second) : (c.first+1); }
-    inline void set_frames(const std::pair<size_t, size_t>& f)   { frames.first   = f.first; frames.second   = (f.first < f.second) ? (f.second) : (f.first+1); }
-    
-    inline size_t height() const    { return rows.second - rows.first; }
-    inline size_t width() const     { return columns.second - columns.first; }
-    inline size_t nSlices() const   { return slices.second - slices.first; }
-    inline size_t nChannels() const { return channels.second - channels.first; }
-    inline size_t nFrames() const   { return frames.second - frames.first; }
+        friend class Bucket;
+        const std::pair<size_t, size_t> columns, rows, slices, frames;
+        size_t sizeX, sizeY, sizeZ, sizeT;
+        size_t x, y, z, f;
+        bool valid = true;
 
-    inline size_t at(size_t l, size_t c, size_t s, size_t ch, size_t f) const {
-        return (f*nChannels()*nSlices()*width()*height()) + (ch*nSlices()*width()*height()) + (s*width()*height()) + (width()*l) + c;
+        Iterator(const Bucket& b);
+
+    public:
+
+        inline operator bool() const   { return this->valid; }
+        inline operator size_t() const { return this->index_of(); }
+
+        inline glm::ivec4 get_position() const { return glm::ivec4(x, y, z, f); }
+
+        inline size_t index_of() const { 
+            return sizeX*sizeY*sizeZ*f + sizeX*sizeY*z + sizeX*y+x;
+        }
+
+        inline void next() {
+            if (++x < columns.second) { return; }
+            x = columns.first;
+
+            if (++y < rows.second) { return; }
+            y = rows.first;
+
+            if (++z < slices.second) { return; }
+            z = slices.first;
+
+            if (++f < frames.second) { return; }
+            valid = false;
+        }
+    };
+
+    inline Iterator get_iterator() const { return Iterator(*this); }
+
+public:
+
+    Bucket(size_t c=1, size_t r=1, size_t s=1, size_t f=1):
+        canvasColumns(c), 
+        canvasRows(r), 
+        canvasSlices(s), 
+        canvasFrames(f),
+        localColumns({0, c}), 
+        localRows({0, r}), 
+        localSlices({0, s}), 
+        localFrames({0, f}) {
+            if (!(canvasColumns && canvasRows && canvasSlices && canvasFrames)) {
+                throw std::invalid_argument("Attempt to set a dimension to 0 or a negative value.");
+            }
     }
+
+    Bucket(size_t c, 
+           size_t r, 
+           size_t s, 
+           size_t f, 
+           std::pair<size_t, size_t> lc, 
+           std::pair<size_t, size_t> lr, 
+           std::pair<size_t, size_t> ls, 
+           std::pair<size_t, size_t> lf
+        ) : Bucket(c, r, s, f) {
+        this->set_local_columns(lc);
+        this->set_local_rows(lr);
+        this->set_local_slices(ls);
+        this->set_local_frames(lf);
+    }
+
+    Bucket(const Bucket& b);
+
+    Bucket(
+        const Bucket& b, 
+        std::pair<size_t, size_t> lc, 
+        std::pair<size_t, size_t> lr, 
+        std::pair<size_t, size_t> ls, 
+        std::pair<size_t, size_t> lf
+    );
+
+    inline size_t index_of(size_t x, size_t y, size_t z, size_t f) const {
+        return canvasColumns*canvasRows*canvasSlices*f + canvasColumns*canvasRows*z + canvasColumns*y+x;
+    }
+
+    inline void set_origin(glm::vec3 o) { this->origin = o; }
+    inline void set_start_frame(size_t f) { this->start_frame = f; }
+
+    inline glm::vec3 get_origin() const { return this->origin; }
+    inline size_t get_start_frame() const { return this->start_frame; }
+
+    inline void set_calibration(Calibration c) { this->calibration = c; }
+    inline Calibration get_calibration() const { return this->calibration; }
+
+    inline void set_local_columns(const std::pair<size_t, size_t>& c) { this->set_span(localColumns, c, canvasColumns); }
+    inline void set_local_rows(const std::pair<size_t, size_t>& r)    { this->set_span(localRows, r, canvasRows); }
+    inline void set_local_slices(const std::pair<size_t, size_t>& s)  { this->set_span(localSlices, s, canvasSlices); }
+    inline void set_local_frames(const std::pair<size_t, size_t>& f)  { this->set_span(localFrames, f, canvasFrames); }
+
+    inline size_t get_canvas_size() const { return canvasColumns * canvasRows * canvasSlices * canvasFrames; }
+    inline size_t get_local_size() const  { 
+        return (localColumns.second - localColumns.first) * 
+               (localRows.second - localRows.first) * 
+               (localSlices.second - localSlices.first) * 
+               (localFrames.second - localFrames.first); 
+    }
+
+    inline size_t get_canvas_columns() const { return canvasColumns; }
+    inline size_t get_canvas_rows() const    { return canvasRows; }
+    inline size_t get_canvas_slices() const  { return canvasSlices; }
+    inline size_t get_canvas_frames() const  { return canvasFrames; }
+
+    inline size_t get_local_columns() const { return (localColumns.second - localColumns.first); }
+    inline size_t get_local_rows() const    { return (localRows.second - localRows.first); }
+    inline size_t get_local_slices() const  { return (localSlices.second - localSlices.first); }
+    inline size_t get_local_frames() const  { return (localFrames.second - localFrames.first); }
+
+    inline std::pair<size_t, size_t> get_columns_range() const { return localColumns; }
+    inline std::pair<size_t, size_t> get_rows_range() const    { return localRows; }
+    inline std::pair<size_t, size_t> get_slices_range() const  { return localSlices; }
+    inline std::pair<size_t, size_t> get_frames_range() const  { return localFrames; }
+
+    inline float get_canvas_width() const    { return (float)this->canvasColumns * this->calibration.get_size_x(); }
+    inline float get_canvas_height() const   { return (float)this->canvasRows * this->calibration.get_size_y(); }
+    inline float get_canvas_depth() const    { return (float)this->canvasSlices * this->calibration.get_size_z(); }
+    inline float get_canvas_duration() const { return (float)this->canvasFrames * this->calibration.get_time_interval(); }
+
+    inline float get_local_width() const    { return (float)(localColumns.second - localColumns.first) * this->calibration.get_size_x(); }
+    inline float get_local_height() const   { return (float)(localRows.second - localRows.first) * this->calibration.get_size_y(); }
+    inline float get_local_depth() const    { return (float)(localSlices.second - localSlices.first) * this->calibration.get_size_z(); }
+    inline float get_local_duration() const { return (float)(localFrames.second - localFrames.first) * this->calibration.get_time_interval(); }
 };
+
 
 #endif //BUCKET_LOCATION_HPP_INCLUDED
