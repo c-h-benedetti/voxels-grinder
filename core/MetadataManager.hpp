@@ -26,10 +26,6 @@ public:
 
     template <typename T>
     bool set_key(const std::string& key, const T& val, bool override=true);
-
-    // Fills the dimensions and the calibration.
-    void get_dimensions(Bucket& b) const;
-    size_t get_n_channels() const;
 };
 
 

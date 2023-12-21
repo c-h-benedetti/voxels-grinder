@@ -87,13 +87,15 @@ set(UTILS_SRC
 	"utils/general.cpp"
 	"utils/Logger.hpp"
 	"utils/Logger.cpp"
+	"utils/streams.hpp"
+	"utils/streams.cpp"
 )
 
 set(PROCESSORS_SRC
 	"processors/binary/ThresholdProcessor.hpp"
 	"processors/binary/ThresholdProcessor.cpp"
-	"processors/analysis/CanvasStatistics.hpp"
-	"processors/analysis/CanvasStatistics.cpp"
+	"processors/analysis/CanvasStatisticsProcessor.hpp"
+	"processors/analysis/CanvasStatisticsProcessor.cpp"
 )
 
 # = = = = = = = = = = = = = = = = STACK SEGMENTS = = = = = = = = = = = = = = = =
@@ -200,6 +202,7 @@ target_link_libraries("unitTests"
 	CORE_LIB
 	CONTAINERS_LIB
 	IO_LIB
+	UTILS_LIB
 	PROXIES_LIB
 	PROCESSORS_LIB
 	gtest_main

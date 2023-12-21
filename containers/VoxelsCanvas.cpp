@@ -7,55 +7,76 @@ VoxelsCanvas::VoxelsCanvas(DataProxy* p) : Data(p) {
 }
 
 
-VoxelsCanvas::VoxelsCanvas(Bucket b) : Data(nullptr) {
-    if ((b.nVoxelsX() == 0) || 
-        (b.nVoxelsY() == 0) || 
-        (b.nVoxelsZ() == 0) || 
-        (b.nFrames()  == 0)) { 
-			throw std::invalid_argument("No dimension should be 0.");
-	}
-    this->global = b;
+VoxelsCanvas::VoxelsCanvas(Bucket b) : Data(nullptr), dimensions(b) {
     this->allocate_memory(b);
 }
 
 
-VoxelsCanvas::VoxelsCanvas(size_t h, size_t w, size_t s, size_t f) : 
-    VoxelsCanvas(Bucket({0, h}, {0, w}, {0, s}, {0, f})) {}
+VoxelsCanvas::VoxelsCanvas(size_t w, size_t h, size_t s, size_t f) : 
+    VoxelsCanvas(Bucket(w, h, s, f)) {}
+
+
+VoxelsCanvas::~VoxelsCanvas() {
+	delete[] this->data;
+	this->data = nullptr;
+}
 
 
 // Has to deal with stream creation if the required canvas is too big.
 bool VoxelsCanvas::allocate_memory(Bucket b) {
-	this->data = new float [b.length()];
+	this->data = new float [b.get_canvas_size()];
 	return true;
 }
 
 /// Creates a copy from the original VoxelsCanvas instance.
-VoxelsCanvas::VoxelsCanvas(const VoxelsCanvas& vc) : VoxelsCanvas(vc.get_global_dimensions()) {
-	memcpy(this->data, vc.data, this->global.length() * sizeof(float));
+VoxelsCanvas::VoxelsCanvas(const VoxelsCanvas& vc) : VoxelsCanvas(vc.get_dimensions()) {
+	memcpy(this->data, vc.data, this->dimensions.get_canvas_size() * sizeof(float));
 }
 
 /// Creates a copy from a given region of a VoxelsCanvas instance.
 VoxelsCanvas::VoxelsCanvas(const VoxelsCanvas& vc, const Bucket& b) : Data(nullptr) {
+	Bucket new_bucket(b.get_local_columns(), b.get_local_rows(), b.get_local_slices(), b.get_local_frames());
+	new_bucket.set_start_frame(b.get_start_frame() + b.get_frames_range().first);
+	
+	glm::vec3 o = b.get_origin();
+	Calibration c = b.get_calibration();
+	new_bucket.set_calibration(c);
+	
+	o.x += static_cast<float>(b.get_columns_range().first) * c.get_size_x();
+	o.y += static_cast<float>(b.get_rows_range().first) * c.get_size_y();
+	o.z += static_cast<float>(b.get_slices_range().first) * c.get_size_z();
 
+	new_bucket.set_origin(o);
+	this->dimensions = new_bucket;
+
+	this->allocate_memory(new_bucket);
+	Bucket::Iterator it = this->dimensions.get_iterator();
+	size_t pos = 0;
+
+	while (it) {
+		this->data[pos++] = vc.at(it);
+        it.next();
+	}
 }
 
-void VoxelsCanvas::to_dump(const std::filesystem::path& p) {
 
+float VoxelsCanvas::at(size_t c, size_t l, size_t s, size_t f) const {
+	return this->data[this->dimensions.index_of(c, l, s, f)];
 }
 
 
-void VoxelsCanvas::from_dump(const std::filesystem::path& p) {
-
-}
-
-
-float& VoxelsCanvas::at(size_t c, size_t l, size_t s, size_t f) {
-	return this->data[this->loaded.index_of(c, l, s, f)];
+float VoxelsCanvas::at(const Bucket::Iterator& it) const {
+	return this->data[it.index_of()];
 }
 
 
 void  VoxelsCanvas::set(size_t c, size_t l, size_t s, size_t f, float val) {
-	this->data[this->loaded.index_of(c, l, s, f)] = val;
+	this->data[this->dimensions.index_of(c, l, s, f)] = val;
+}
+
+
+void VoxelsCanvas::set(const Bucket::Iterator& it, float val) {
+	this->data[it.index_of()] = val;
 }
 
 

@@ -7,7 +7,6 @@ class Processor {
 
 public:
 
-    virtual void execute() = 0;
     virtual bool is_streamable() const = 0;
 };
 

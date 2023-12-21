@@ -9,20 +9,13 @@
 
 class VoxelsCanvas : public Data {
 
-protected:
-
     /// Actual data looaded from the disk in a 1D array.
     float* data = nullptr;
-    /// The global canvas' size.
-    Bucket global;
-    /// The portion of the canvas currently loaded.
-    Bucket loaded;
-    /// If the data is streamed, this variable contains a low-res version that fits in the RAM so we can have an overview.
-    float* low_res = nullptr;
+    /// Dimensions of the canvas.
+    Bucket dimensions;
 
-protected:
+private:
 
-    inline float* get_data_segment() { return this->data; }
     bool allocate_memory(Bucket b);
 
 public:
@@ -34,28 +27,28 @@ public:
     };
 
     enum class padding_type {
-        BLACK, /// Pad with the value 0.
+        BACKGROUND, /// Pad with the value 0.
         DRIFT, /// Pad with the last value encountered.
-        LOOP   /// Acts like there is a mirror effect.
+        LOOP /// Acts like there is a mirror effect.
     };
 
-    inline Bucket get_global_dimensions() const { return this->global; }
-    inline Bucket get_loaded_dimensions() const { return this->loaded; }
+    inline const float* get_data_segment() { return this->data; }
+    inline Bucket get_dimensions() const { return this->dimensions; }
     int run(Task* v, Bucket b) override;
+
+    ~VoxelsCanvas();
 
     VoxelsCanvas() = delete;
     VoxelsCanvas(DataProxy* p);
     VoxelsCanvas(Bucket b);
-    VoxelsCanvas(size_t h, size_t w, size_t s, size_t f);
+    VoxelsCanvas(size_t w, size_t h, size_t s, size_t f);
     VoxelsCanvas(const VoxelsCanvas& vc);
     VoxelsCanvas(const VoxelsCanvas& vc, const Bucket& b);
 
-    float& at(size_t c, size_t l, size_t s, size_t f);
+    float at(size_t c, size_t l, size_t s, size_t f) const;
+    float at(const Bucket::Iterator& it) const;
     void  set(size_t c, size_t l, size_t s, size_t f, float val);
-
-    void to_dump(const std::filesystem::path& p);
-    void from_dump(const std::filesystem::path& p);
-
+    void  set(const Bucket::Iterator& it, float val);
 };
 
 

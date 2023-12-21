@@ -1,33 +1,109 @@
 #include "gtest/gtest.h"
 #include "containers/VoxelsCanvas.hpp"
 
+#include <random>
+#include <cstring>
+
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #    BEHAVIOR TESTS                                                         #
+// #    VOXELS CANVAS                                                          #
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-TEST(CoreBehavior, CanvasInstanciation) {
-    RecordProperty("description", "How to instanciate (and access) a VoxelsCanvas object that fits in RAM.");
+// Dimensions used for testing purpose
+constexpr size_t width  = 512;
+constexpr size_t height = 512;
+constexpr size_t depth  = 15;
+constexpr size_t frames = 7;
 
-    // Dimensions used for testing purpose
-    constexpr size_t height = 512;
-    constexpr size_t width  = 512;
-    constexpr size_t depth  = 34;
-    constexpr size_t frames = 15;
+// >>> Constructors:
 
-    // Instanciate from dimensions
-    VoxelsCanvas vc1(height, width, depth, frames);
+TEST(VoxelsCanvas, VoxelsCanvasDimensionsConstructor) {
+    RecordProperty("short", "Instanciate a canvas from dimensions.");
+ 
+    EXPECT_NO_THROW(VoxelsCanvas vc = VoxelsCanvas(width, height, depth, frames););
+}
 
-    // Instanciate from a Bucket (reprensenting dimensions)
-    Bucket b1(height, width, depth, frames);
+
+TEST(VoxelsCanvas, VoxelsCanvasBucketConstructor) {
+    RecordProperty("short", "Instanciate a canvas from dimensions.");
+
+    Bucket b1(width, height, depth, frames);
+    EXPECT_NO_THROW(VoxelsCanvas vc = VoxelsCanvas(b1););
+}
+
+
+TEST(VoxelsCanvas, VoxelsCanvasFullCopyConstructor) {
+    RecordProperty("short", "Instanciate a canvas from another canvas.");
+
+    Bucket b1(width, height, depth, frames);
+    VoxelsCanvas vc2(b1);
+    EXPECT_NO_THROW(VoxelsCanvas vc3(vc2););
+}
+
+
+std::pair<size_t, size_t> mid(size_t dim) {
+    size_t q = dim / 3;
+    return {q, 2*q};
+}
+
+
+TEST(VoxelsCanvas, VoxelsCanvasPartialCopyConstructor) {
+    RecordProperty("short", "Instanciate a canvas from another canvas.");
+
+    Bucket b1(width, height, depth, frames);
+    VoxelsCanvas vc2(b1);
+    
+    Bucket b2(
+        b1,
+        mid(width),
+        mid(height),
+        mid(depth),
+        mid(frames)
+    );
+
+    EXPECT_NO_THROW(VoxelsCanvas vc4(vc2, b2););
+}
+
+// >>> Data validity
+
+TEST(VoxelsCanvas, VoxelsCanvasFullCopyValidity) {
+    RecordProperty("short", "Instanciate a canvas from another canvas.");
+
+    Bucket b1(width, height, depth, frames);
     VoxelsCanvas vc2(b1);
 
-    // Instanciante from another instance.
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    Bucket::Iterator it = b1.get_iterator();
+
+    while (it) {
+        vc2.set(it, dis(gen));
+        it.next();
+    }
+
     VoxelsCanvas vc3(vc2);
 
-    // Instanciante from a chunk from another instance.
-    Bucket b2(height/2, width/2, depth/2, frames/2);
-    VoxelsCanvas vc3(vc1, b2);
+    EXPECT_TRUE(memcmp(
+        vc2.get_data_segment(), 
+        vc3.get_data_segment(), 
+        sizeof(float)*b1.get_canvas_size()
+    ) == 0);
+}
 
-    // Instanciate from a raw-dump
-    VoxelsCanvas vc4("/home/clement/tests/dump.rawdump");
+
+TEST(VoxelsCanvas, VoxelsCanvasPartialCopyValidity) {
+    RecordProperty("short", "Instanciate a canvas from another canvas.");
+
+    Bucket b1(width, height, depth, frames);
+    VoxelsCanvas vc2(b1);
+    
+    Bucket b2(
+        b1,
+        mid(width),
+        mid(height),
+        mid(depth),
+        mid(frames)
+    );
+
+    VoxelsCanvas vc4(vc2, b2);
 }

@@ -8,8 +8,6 @@
     #define ACCESS_MODIFIER private
 #endif
 
-inline bool b_equality(auto t1, auto t2) { return !(t1 ^ t2); }
-
 /**
  * Function allowing to print something only if we are in debug mode.
  * It has the advantage not to require a condition check.

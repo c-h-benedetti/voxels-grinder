@@ -12,10 +12,10 @@ Thresholder::Thresholder(Data* d, method m, bool by_slice) : Processor(), split_
         throw std::invalid_argument("[Thresholder]: The provided object couldn't be casted to a VoxelsCanvas.");
     }
 
-    const Bucket& b = target->get_global_dimensions();
-    bounds.resize(b.nVoxelsZ());
+    const Bucket& b = target->get_dimensions();
+    bounds.resize(b.get_canvas_slices());
 
-    for (size_t i = 0 ; i < b.nVoxelsZ() ; i++) {
+    for (size_t i = 0 ; i < b.get_canvas_slices() ; i++) {
         bounds[2*i+0].first = std::numeric_limits<float>::min();
         bounds[2*i+1].second = std::numeric_limits<float>::max();
     }

@@ -15,6 +15,12 @@ class GeometryCanvas : public Data {
 	// The first vector is for frames.
 	// The second allows to have several geometric objects on each frame.
 	std::vector<std::vector<Geometry>> geometries;
+
+public:
+
+	int run(Task* v, Bucket b) override;
+
+	GeometryCanvas();
 };
 
 #endif // GEOMETRY_HPP_INCLUDED
