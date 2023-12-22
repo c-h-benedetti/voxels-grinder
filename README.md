@@ -1,6 +1,6 @@
 # VoxelsGrinder: Advanced Image Processing Software for Biological and Microscopy Imaging
 
-![cpp-build](https://github.com/c-h-benedetti/voxels-grinder/actions/workflows/cpp-build.yml/badge.svg)
+![tests-badge](https://github.com/c-h-benedetti/voxels-grinder/actions/workflows/cpp-build.yml/badge.svg)
 
 ## Overview
 

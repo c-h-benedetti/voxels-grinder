@@ -8,7 +8,7 @@
 #include "core/Task.hpp"
 #include "core/Processor.hpp"
 
-
+/// Contains a set of statistics.
 struct Statistics {
     
     std::vector<uint32_t> histogram;
@@ -19,7 +19,7 @@ struct Statistics {
     Statistics();
 };
 
-
+/// Collection of Statistics object to represent each slice of a stack.
 struct StackStatistics {
     std::vector<Statistics> slices_statistics;
     float min, max;
@@ -62,6 +62,12 @@ private:
         MinMaxSliceTask(VoxelsCanvas* target, std::vector<StackStatistics>& s);
     };
 
+    /**
+     * Task building the histogram for a whole canvas.
+     * The number of bins is the same for each histogram (each slice from each frame).
+     * Both the bin size and the extremums are common to every slices of a given frame.
+     * The statistics summarized for the whole canvas are not processed here.
+     */
     struct HistogramSliceTask : public Task {
         /// Canvas from which we have to extract histograms
         VoxelsCanvas* target;
@@ -114,3 +120,9 @@ public:
 };
 
 #endif // CANVAS_STATISTICS_HPP_INCLUDED
+
+/** TODO:
+ *
+ * - [ ] Modify this processor to take into account a possible selection on the canvas.
+ * - [ ] Better way to determine the number of bins?
+ */
