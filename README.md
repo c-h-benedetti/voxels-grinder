@@ -1,5 +1,7 @@
 # VoxelsGrinder: Advanced Image Processing Software for Biological and Microscopy Imaging
 
+![cpp-build](https://github.com/c-h-benedetti/voxels-grinder/actions/workflows/cpp-build.yml/badge.svg)
+
 ## Overview
 
 VoxelsGrinder emerges as a modern and efficient solution in the realm of biological and microscopy image processing. With the increasing complexity and maintenance challenges of legacy software like ImageJ and its Fiji distribution, there is a growing need for a tool that is not only easier to maintain but also capable of leveraging current hardware architectures to handle the ever-growing volume of microscopy data efficiently.
